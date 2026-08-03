@@ -12,7 +12,6 @@ import {
   History,
   LayoutDashboard,
   Settings as SettingsIcon,
-  ExternalLink,
   Sun,
   Moon,
   Monitor
@@ -28,6 +27,7 @@ import DashboardPage from './pages/Dashboard'
 import SettingsPage from './pages/Settings'
 import OnboardingModal from './components/OnboardingModal'
 import TitleBar from './components/TitleBar'
+import GitHubIcon from './components/GitHubIcon'
 import { getLangPref, onLangChange, setLangPref, t } from './lib/i18n'
 import { loadSettings, saveSettings, systemPrefersDark, onSystemThemeChange, systemLang } from './lib/settings'
 import type { ThemePref } from './lib/settings'
@@ -193,6 +193,18 @@ export default function App(): React.JSX.Element {
                 items={menuItems}
                 onClick={({ key }) => setActive(key)}
               />
+              <div className="sider-footer">
+                <a
+                  className="gh-link"
+                  href="https://github.com/Siborne/git-switch"
+                  target="_blank"
+                  rel="noreferrer"
+                  title={t('在 GitHub 上查看源码', 'View source on GitHub')}
+                >
+                  <GitHubIcon size={15} />
+                  <span>GitHub</span>
+                </a>
+              </div>
             </div>
           </Sider>
           <Content className="app-content">
@@ -218,9 +230,6 @@ export default function App(): React.JSX.Element {
                   options={quickProfiles.map((p) => ({ value: p.id, label: p.name }))}
                   suffixIcon={null}
                 />
-                <Button href="https://github.com/Siborne/git-switch" target="_blank" icon={<ExternalLink size={15} />}>
-                  GitHub
-                </Button>
               </div>
             </div>
             {active === 'settings' ? (
