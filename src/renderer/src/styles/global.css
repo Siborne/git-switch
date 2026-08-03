@@ -613,6 +613,11 @@ body {
   border-bottom-right-radius: 10px;
 }
 
+/* 当前生效（最近）备份行：绿色左边框高亮 */
+.backup-row-current > td:first-child {
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
 /* ---------- Input / Select：Focus 蓝色 Glow ---------- */
 .ant-input:focus,
 .ant-input-focused,

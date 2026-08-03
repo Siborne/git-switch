@@ -97,7 +97,16 @@ export default function BackupsPage(): React.JSX.Element {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 180,
-      render: (v: string) => <Typography.Text>{fmtTime(v)}</Typography.Text>
+      render: (v: string, record: BackupMeta) => (
+        <Space size={6}>
+          <Typography.Text>{fmtTime(v)}</Typography.Text>
+          {record.id === backups[0]?.id && (
+            <Tag color="success" style={{ marginRight: 0 }}>
+              {t('最近', 'Latest')}
+            </Tag>
+          )}
+        </Space>
+      )
     },
     {
       title: t('原因', 'Reason'),
@@ -188,6 +197,7 @@ export default function BackupsPage(): React.JSX.Element {
               dataSource={backups}
               pagination={{ pageSize: 8, showSizeChanger: false }}
               locale={{ emptyText: <TableEmpty icon={<History size={22} />} description="暂无备份记录" /> }}
+              onRow={(record) => (record.id === backups[0]?.id ? { className: 'backup-row-current' } : {})}
             />
           </Spin>
         </Card>
