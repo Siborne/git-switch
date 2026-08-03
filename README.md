@@ -4,9 +4,7 @@
 
 > 支持多套身份（工作 / 个人 / 开源）一键切换、项目级差异化配置、按目录自动切换（includeIf）、配置浏览器、备份回滚与导入导出。
 
-![platform](https://img.shields.io/badge/platform-Windows-blue) ![license](https://img.shields.io/badge/license-MIT-green)
-
-## 功能
+![platform](https://img.shields.io/badge/platform-Windows-blue) ![license](https://img.shields.io/badge/license-MIT-green)## 功能
 
 | 模块 | 说明 |
 |---|---|
@@ -105,3 +103,9 @@ $env:GS_SMOKE='1'; npm run dev
 - 写配置前自动备份；回滚前再保护，全程可逆
 - 敏感项（token / proxy / credential）默认脱敏显示与导出
 - 外部链接一律系统浏览器打开；渲染层无 Node 权限（contextIsolation）
+
+## License
+
+[MIT License](LICENSE) © 2026 Siborne
+
+本项目使用宽松的 MIT 许可证：允许商用、闭源衍生、自由修改与分发，仅需保留版权声明与许可文本。详见 [LICENSE](LICENSE) 文件。
