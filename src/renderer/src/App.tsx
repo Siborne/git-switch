@@ -50,14 +50,14 @@ const pageLabels: Record<(typeof menuKeys)[number], [string, string]> = {
 }
 
 const menuIcons: Record<(typeof menuKeys)[number], React.ReactNode> = {
-  dashboard: <LayoutDashboard size={17} />,
-  profiles: <IdCard size={17} />,
-  projects: <FolderGit2 size={17} />,
-  effective: <Layers size={17} />,
-  include: <ArrowLeftRight size={17} />,
-  browser: <SlidersHorizontal size={17} />,
-  backups: <History size={17} />,
-  settings: <SettingsIcon size={17} />
+  dashboard: <LayoutDashboard size={20} />,
+  profiles: <IdCard size={20} />,
+  projects: <FolderGit2 size={20} />,
+  effective: <Layers size={20} />,
+  include: <ArrowLeftRight size={20} />,
+  browser: <SlidersHorizontal size={20} />,
+  backups: <History size={20} />,
+  settings: <SettingsIcon size={20} />
 }
 
 const pages: Record<string, React.ReactNode> = {

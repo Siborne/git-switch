@@ -18,6 +18,10 @@ function createWindow(): void {
     frame: false,
     backgroundColor: '#0B1220',
     title: 'Git Switch',
+    // 应用图标：dev 用项目源文件，打包后从 resources 读取（extraResources 拷贝）
+    icon: app.isPackaged
+      ? join(process.resourcesPath, 'icon.png')
+      : join(__dirname, '../../build/icon.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,

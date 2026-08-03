@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Git Switch 品牌图标：深蓝玻璃底 + 青蓝渐变 Git 菱形 + 双向切换箭头 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0F1B2E"/>
+      <stop offset="1" stop-color="#1E2B45"/>
+    </linearGradient>
+    <linearGradient id="dia" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <!-- 圆角方形底（深蓝渐变，玻璃感） -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="6"/>
+  <!-- Git 菱形（品牌青蓝渐变） -->
+  <polygon points="256,100 412,256 256,412 100,256" fill="url(#dia)"/>
+  <polygon points="256,100 412,256 256,412 100,256" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="8" stroke-linejoin="round"/>
+  <!-- 切换箭头：左半区朝右（目标，实心白）+ 右半区朝左（来源，半透明白），中线竖条分隔 -->
+  <path d="M168 238 H228 V226 L252 256 L228 286 V274 H168 Z" fill="#FFFFFF"/>
+  <path d="M344 238 H284 V226 L260 256 L284 286 V274 H344 Z" fill="rgba(255,255,255,0.5)"/>
+  <rect x="250.5" y="196" width="11" height="120" fill="rgba(255,255,255,0.38)"/>
+</svg>

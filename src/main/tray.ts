@@ -2,9 +2,9 @@ import { app, BrowserWindow, Menu, Tray, nativeImage } from 'electron'
 import { listProfiles, applyProfileToGlobal } from './profiles'
 import { getConfig } from './git'
 
-/** 16x16 青色圆角图标（base64 PNG，内嵌避免资源路径问题） */
+/** 16x16 品牌托盘图标（透明底：青蓝渐变菱形 + 切换箭头，base64 内嵌避免资源路径问题） */
 const TRAY_ICON_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAJ0lEQVR4nGNggAKly+/+k4IZ0AHZBpCqEcOgUQNGDRgmBjAMdG4EAHHks/81tasdAAAAAElFTkSuQmCC'
+  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABeElEQVR4nGNgoCmo/08ExmRrhgFSDbGv/88CouOWvPWMXfrWC1mMsOb9EIUxy147GU37+NNw6sdf8ctfOyPLIQMmdJsPOjL+SVn72un6N/ZN3///Yf3O8Jv58jf29QlrXzuB5NBdwojiz0bGf3FrnjseeM22+eMfZm5J1u8P2ZkZ2F8yiUjw/v30z1z4l+uSYMl9MLUIA+ohAmGbX3mdec28JlWLjUNLiJnhw49/T+5++H1YhpeF9cwbBskDz/8Za/P9DF0fILYVpocF2Tn/GRkY/7D8Y/zP+v//f5b/jP9Z/jP8Y2X4/4/l3/8/zP//g+UYkVyNzQsRWx877X7DDPIClyzLj4eszIxsL1iEJHn/fP5nLvDLfZ2P/B5kL6AA+/r9YBdF7nirLTm+VeJZY/+iS99+Fdx7fPP4bueOCOrwQnsoVHlv+2Bs9SaR7+k1jz67bf9oQuyHEFgvx9ii8vex15uOx74IIsRDyhJynDw/z8TGNMSAACiM7wmzDfE2gAAAABJRU5ErkJggg=='
 
 let tray: Tray | null = null
 
