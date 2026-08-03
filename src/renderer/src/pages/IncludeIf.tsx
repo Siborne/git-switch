@@ -12,13 +12,11 @@ import {
   Space,
   Spin,
   Switch,
-  Table,
   Tag,
   Typography,
   message
 } from 'antd'
-import type { TableProps } from 'antd'
-import { DeleteOutlined, EditOutlined, PlusOutlined, SyncOutlined } from '@ant-design/icons'
+import { ArrowRight, GitBranch, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import type { ActualInclude, IncludeRule, Profile } from '../../../shared/types'
 
 export default function IncludeIfPage(): React.JSX.Element {
@@ -112,66 +110,24 @@ export default function IncludeIfPage(): React.JSX.Element {
 
   const profileName = (id: string): string => profiles.find((p) => p.id === id)?.name ?? '（配置集已删除）'
 
-  const columns: TableProps<IncludeRule>['columns'] = [
-    {
-      title: '目录规则',
-      dataIndex: 'path',
-      key: 'path',
-      render: (v: string) => <span style={{ fontFamily: 'Consolas, monospace' }}>{v}/</span>
-    },
-    {
-      title: '配置集',
-      key: 'profile',
-      width: 220,
-      render: (_, r) => (
-        <Select
-          size="small"
-          style={{ width: 200 }}
-          value={r.profileId}
-          options={profiles.map((p) => ({ value: p.id, label: p.name }))}
-          onChange={(id) => void window.gitSwitch.include.update(r.id, { path: r.path, profileId: id }).then(() => void load())}
-        />
-      )
-    },
-    {
-      title: '启用',
-      key: 'enabled',
-      width: 80,
-      render: (_, r) => <Switch size="small" checked={r.enabled} onChange={(v) => void toggle(r, v)} />
-    },
-    {
-      title: '操作',
-      key: 'actions',
-      width: 120,
-      render: (_, r) => (
-        <Space size={4}>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(r)} />
-          <Popconfirm title={`删除规则 ${r.path}/？`} okText="删除" okButtonProps={{ danger: true }} onConfirm={() => void remove(r)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      )
-    }
-  ]
-
   return (
     <div className="page">
       {contextHolder}
       <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0 }}>
+        <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
           自动切换
         </Typography.Title>
-        <Typography.Text type="secondary">includeIf</Typography.Text>
+        <Typography.Text type="secondary">includeIf · Folder Mapping</Typography.Text>
         <div style={{ flex: 1 }} />
-        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate} disabled={profiles.length === 0}>
-          新建规则
+        <Button type="primary" icon={<Plus size={15} />} onClick={openCreate} disabled={profiles.length === 0}>
+          新建映射
         </Button>
-        <Button type="primary" ghost icon={<SyncOutlined />} loading={syncing} onClick={() => void sync()}>
+        <Button type="primary" ghost icon={<RefreshCw size={15} />} loading={syncing} onClick={() => void sync()}>
           同步到全局配置
         </Button>
       </div>
-      <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
-        按目录自动切换：进入映射目录后，git 会自动加载对应配置集，无需手动切换。基于 git 原生 includeIf 机制，同步前会自动备份全局配置。
+      <Typography.Paragraph type="secondary" style={{ marginTop: 6, marginBottom: 20 }}>
+        按目录自动切换：进入映射目录后，git 会自动加载对应配置集，无需手动切换。基于 git 原生 includeIf 机制，同步前自动备份全局配置。
       </Typography.Paragraph>
 
       {profiles.length === 0 && (
@@ -180,22 +136,61 @@ export default function IncludeIfPage(): React.JSX.Element {
           showIcon
           message="还没有配置集"
           description="请先在「配置集」页面创建至少一个配置集，再建立目录映射。"
-          style={{ marginBottom: 12 }}
+          style={{ marginBottom: 16 }}
         />
       )}
 
-      <Card className="glass" title={`目录映射（${rules.length}）`} styles={{ body: { padding: 8 } }}>
-        <Spin spinning={loading}>
-          <Table<IncludeRule>
-            rowKey="id"
-            size="small"
-            columns={columns}
-            dataSource={rules}
-            pagination={false}
-            locale={{ emptyText: <Empty description="暂无目录映射" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-          />
-        </Spin>
-      </Card>
+      <Spin spinning={loading}>
+        {rules.length === 0 ? (
+          <Card className="glass">
+            <div className="empty-brand">
+              <span className="empty-icon">
+                <GitBranch size={34} />
+              </span>
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                建立第一个目录映射
+              </Typography.Title>
+              <Typography.Text type="secondary">如 D:\work → 工作身份，D:\oss → 个人身份</Typography.Text>
+              <Button
+                type="primary"
+                icon={<Plus size={15} />}
+                onClick={openCreate}
+                disabled={profiles.length === 0}
+                style={{ marginTop: 8 }}
+              >
+                新建映射
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <Space direction="vertical" size={10} style={{ width: '100%' }}>
+            {rules.map((r) => (
+              <div key={r.id} className="folder-map">
+                <Tag
+                  className={r.enabled ? 'tag-scope-worktree' : ''}
+                  style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0 }}
+                >
+                  {r.enabled ? '已启用' : '已禁用'}
+                </Tag>
+                <span className="fm-dir">{r.path}/</span>
+                <span className="fm-arrow">
+                  <ArrowRight size={16} />
+                </span>
+                <span className="fm-profile">{profileName(r.profileId)}</span>
+                <div className="fm-actions">
+                  <Space size={4}>
+                    <Switch size="small" checked={r.enabled} onChange={(v) => void toggle(r, v)} />
+                    <Button size="small" icon={<Pencil size={13} />} onClick={() => openEdit(r)} />
+                    <Popconfirm title={`删除映射 ${r.path}/？`} okText="删除" okButtonProps={{ danger: true }} onConfirm={() => void remove(r)}>
+                      <Button size="small" danger icon={<Trash2 size={13} />} />
+                    </Popconfirm>
+                  </Space>
+                </div>
+              </div>
+            ))}
+          </Space>
+        )}
+      </Spin>
 
       {actual.length > 0 && (
         <Card className="glass" title="全局配置中的实际 includeIf 段" style={{ marginTop: 16 }} styles={{ body: { padding: 16 } }}>
@@ -203,10 +198,10 @@ export default function IncludeIfPage(): React.JSX.Element {
             {actual.map((a, i) => (
               <div key={i}>
                 <Space size={6}>
-                  <Tag color="cyan" style={{ fontFamily: 'Consolas, monospace' }}>
+                  <Tag className="tag-scope-includeif" style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace" }}>
                     {a.dir}
                   </Tag>
-                  <Typography.Text type="secondary" style={{ fontFamily: 'Consolas, monospace', fontSize: 12 }}>
+                  <Typography.Text type="secondary" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
                     → {a.file}
                   </Typography.Text>
                 </Space>
@@ -217,7 +212,7 @@ export default function IncludeIfPage(): React.JSX.Element {
       )}
 
       <Modal
-        title={editTarget ? `编辑规则 ${editTarget.path}/` : '新建目录映射'}
+        title={editTarget ? `编辑映射 ${editTarget.path}/` : '新建目录映射'}
         open={modalOpen}
         onOk={() => void submit()}
         onCancel={() => setModalOpen(false)}
@@ -232,7 +227,7 @@ export default function IncludeIfPage(): React.JSX.Element {
             rules={[{ required: true, message: '请输入目录路径' }]}
             extra="支持绝对路径（D:\work）或 ~ 开头（~/work）；该目录及其子目录内的仓库都会自动使用所选配置集。"
           >
-            <Input placeholder="D:\work 或 ~/work" style={{ fontFamily: 'Consolas, monospace' }} />
+            <Input placeholder="D:\work 或 ~/work" style={{ fontFamily: "'JetBrains Mono', monospace" }} />
           </Form.Item>
           <Form.Item name="profileId" label="使用配置集" rules={[{ required: true, message: '请选择配置集' }]}>
             <Select placeholder="选择配置集" options={profiles.map((p) => ({ value: p.id, label: p.name }))} />

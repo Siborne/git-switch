@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Form, Input, Modal, Space, Steps, Switch, Tag, Typography, message } from 'antd'
-import { CheckCircleOutlined, DownloadOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CheckCircle2, Download, RefreshCw } from 'lucide-react'
 
 interface OnboardingForm {
   profileName: string
@@ -134,7 +134,7 @@ export default function OnboardingModal({ open, onClose }: Props): React.JSX.Ele
           ) : gitState.found ? (
             <Space direction="vertical" size={8}>
               <Space>
-                <CheckCircleOutlined style={{ color: '#4ade80' }} />
+                <CheckCircle2 size={15} style={{ color: '#4ade80' }} />
                 <Typography.Text>已检测到 Git</Typography.Text>
                 <Tag color="cyan">{gitState.version}</Tag>
               </Space>
@@ -151,10 +151,10 @@ export default function OnboardingModal({ open, onClose }: Props): React.JSX.Ele
                 description="Git Switch 依赖 Git for Windows。请先安装后重试。"
               />
               <Space>
-                <Button icon={<DownloadOutlined />} href="https://git-scm.com/download/win" target="_blank">
+                <Button icon={<Download size={15} />} href="https://git-scm.com/download/win" target="_blank">
                   前往 git-scm.com 下载
                 </Button>
-                <Button icon={<ReloadOutlined />} onClick={() => void checkGit()}>
+                <Button icon={<RefreshCw size={15} />} onClick={() => void checkGit()}>
                   重新检测
                 </Button>
               </Space>

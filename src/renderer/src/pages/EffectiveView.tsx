@@ -14,7 +14,7 @@ import {
   Typography
 } from 'antd'
 import type { TableProps } from 'antd'
-import { FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons'
+import { FolderGit2, RefreshCw } from 'lucide-react'
 import type { GitConfigEntry } from '../../../shared/types'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
@@ -28,13 +28,12 @@ function displayValue(key: string, value: string): string {
   return SENSITIVE_RE.test(key) ? maskValue(value) : value
 }
 
-const SCOPE_ORDER: Record<string, number> = { system: 0, global: 1, local: 2, worktree: 3, command: 4 }
-const SCOPE_COLOR: Record<string, string> = {
-  system: 'gold',
-  global: 'cyan',
-  local: 'green',
-  worktree: 'purple',
-  command: 'magenta'
+const SCOPE_CLASS: Record<string, string> = {
+  system: 'tag-scope-system',
+  global: 'tag-scope-global',
+  local: 'tag-scope-local',
+  worktree: 'tag-scope-worktree',
+  command: 'tag-scope-command'
 }
 
 /** 按 key 分组：entries 按配置顺序（低→高优先级），最后一条为最终生效值 */
@@ -58,6 +57,8 @@ function groupByKey(entries: GitConfigEntry[]): KeyGroup[] {
     return { key, entries: sorted, finalValue: last.value, finalScope: last.scope }
   })
 }
+
+const SCOPE_ORDER: Record<string, number> = { system: 0, global: 1, local: 2, worktree: 3, command: 4 }
 
 export default function EffectiveViewPage(): React.JSX.Element {
   const [repoPath, setRepoPath] = useState('')
@@ -119,7 +120,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
         dataIndex: 'key',
         key: 'key',
         width: 280,
-        render: (k: string) => <span style={{ fontFamily: 'Consolas, monospace' }}>{k}</span>
+        render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
       },
       {
         title: '最终生效值',
@@ -127,10 +128,12 @@ export default function EffectiveViewPage(): React.JSX.Element {
         width: 300,
         render: (_, g) => (
           <Space size={6}>
-            <Typography.Text strong style={{ fontFamily: 'Consolas, monospace', color: '#67e8f9' }}>
+            <Typography.Text strong style={{ fontFamily: "'JetBrains Mono', monospace", color: '#60a5fa' }}>
               {displayValue(g.key, g.finalValue)}
             </Typography.Text>
-            <Tag color={SCOPE_COLOR[g.finalScope] ?? 'default'}>{g.finalScope}</Tag>
+            <Tag className={SCOPE_CLASS[g.finalScope] ?? ''} style={{ marginRight: 0 }}>
+              {g.finalScope}
+            </Tag>
           </Space>
         )
       },
@@ -141,10 +144,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
           <Space size={[4, 4]} wrap>
             {g.entries.map((e, i) => (
               <Tooltip key={i} title={e.origin}>
-                <Tag
-                  color={SCOPE_COLOR[e.scope] ?? 'default'}
-                  style={{ fontFamily: 'Consolas, monospace' }}
-                >
+                <Tag className={SCOPE_CLASS[e.scope] ?? ''} style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace" }}>
                   {e.scope}: {displayValue(g.key, e.value)}
                 </Tag>
               </Tooltip>
@@ -175,10 +175,10 @@ export default function EffectiveViewPage(): React.JSX.Element {
           onChange={(e) => setRepoPath(e.target.value)}
           onPressEnter={() => void openRepo()}
         />
-        <Button icon={<FolderOpenOutlined />} onClick={() => void pickRepoDir()}>
+        <Button icon={<FolderGit2 size={15} />} onClick={() => void pickRepoDir()}>
           浏览…
         </Button>
-        <Button onClick={() => void load(repoPath.trim() || undefined)} icon={<ReloadOutlined />}>
+        <Button onClick={() => void load(repoPath.trim() || undefined)} icon={<RefreshCw size={15} />}>
           加载
         </Button>
         <Input.Search

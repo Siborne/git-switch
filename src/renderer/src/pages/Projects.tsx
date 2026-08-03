@@ -19,7 +19,7 @@ import {
   message
 } from 'antd'
 import type { TableProps } from 'antd'
-import { DeleteOutlined, EditOutlined, FolderOpenOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Pencil, Trash2, FolderGit2, Plus, RefreshCw } from 'lucide-react'
 import type { GitConfigEntry, Profile } from '../../../shared/types'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
@@ -33,12 +33,12 @@ function displayValue(key: string, value: string): string {
   return SENSITIVE_RE.test(key) ? maskValue(value) : value
 }
 
-const SCOPE_COLOR: Record<string, string> = {
-  system: 'gold',
-  global: 'cyan',
-  local: 'green',
-  worktree: 'purple',
-  command: 'magenta'
+const SCOPE_CLASS: Record<string, string> = {
+  system: 'tag-scope-system',
+  global: 'tag-scope-global',
+  local: 'tag-scope-local',
+  worktree: 'tag-scope-worktree',
+  command: 'tag-scope-command'
 }
 
 export default function ProjectsPage(): React.JSX.Element {
@@ -159,14 +159,14 @@ export default function ProjectsPage(): React.JSX.Element {
       dataIndex: 'key',
       key: 'key',
       width: 300,
-      render: (k: string) => <span style={{ fontFamily: 'Consolas, monospace' }}>{k}</span>
+      render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
     },
     {
       title: '值',
       dataIndex: 'value',
       key: 'value',
       render: (v: string, r) => (
-        <span style={{ fontFamily: 'Consolas, monospace', wordBreak: 'break-all' }}>{displayValue(r.key, v)}</span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", wordBreak: 'break-all' }}>{displayValue(r.key, v)}</span>
       )
     },
     {
@@ -175,11 +175,11 @@ export default function ProjectsPage(): React.JSX.Element {
       width: 140,
       render: (_, entry) => (
         <Space size={4}>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(entry)}>
+          <Button size="small" icon={<Pencil size={13} />} onClick={() => openEdit(entry)}>
             编辑
           </Button>
           <Popconfirm title={`删除配置项 ${entry.key}？`} okText="删除" okButtonProps={{ danger: true }} onConfirm={() => void removeEntry(entry)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
+            <Button size="small" danger icon={<Trash2 size={13} />} />
           </Popconfirm>
         </Space>
       )
@@ -192,14 +192,14 @@ export default function ProjectsPage(): React.JSX.Element {
       dataIndex: 'key',
       key: 'key',
       width: 300,
-      render: (k: string) => <span style={{ fontFamily: 'Consolas, monospace' }}>{k}</span>
+      render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
     },
     {
       title: '值',
       dataIndex: 'value',
       key: 'value',
       render: (v: string, r) => (
-        <span style={{ fontFamily: 'Consolas, monospace', wordBreak: 'break-all' }}>{displayValue(r.key, v)}</span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", wordBreak: 'break-all' }}>{displayValue(r.key, v)}</span>
       )
     },
     {
@@ -207,7 +207,7 @@ export default function ProjectsPage(): React.JSX.Element {
       dataIndex: 'scope',
       key: 'scope',
       width: 96,
-      render: (s: string) => <Tag color={SCOPE_COLOR[s] ?? 'default'}>{s}</Tag>
+      render: (s: string) => <Tag className={SCOPE_CLASS[s] ?? ''} style={{ marginRight: 0 }}>{s}</Tag>
     },
     {
       title: '来源文件',
@@ -216,7 +216,7 @@ export default function ProjectsPage(): React.JSX.Element {
       ellipsis: true,
       render: (o: string) => (
         <Tooltip title={o}>
-          <span style={{ fontFamily: 'Consolas, monospace' }}>{o}</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{o}</span>
         </Tooltip>
       )
     }
@@ -240,14 +240,14 @@ export default function ProjectsPage(): React.JSX.Element {
           onChange={(e) => setRepoPath(e.target.value)}
           onPressEnter={() => void openRepo()}
         />
-        <Button icon={<FolderOpenOutlined />} onClick={() => void pickRepoDir()}>
+        <Button icon={<FolderGit2 size={15} />} onClick={() => void pickRepoDir()}>
           浏览…
         </Button>
         <Button type="primary" onClick={() => void openRepo()}>
           打开仓库
         </Button>
         {opened && (
-          <Button icon={<ReloadOutlined />} onClick={() => void reload()}>
+          <Button icon={<RefreshCw size={15} />} onClick={() => void reload()}>
             刷新
           </Button>
         )}
@@ -267,7 +267,7 @@ export default function ProjectsPage(): React.JSX.Element {
                 children: (
                   <>
                     <Space style={{ marginBottom: 8 }}>
-                      <Button size="small" type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+                      <Button size="small" type="primary" icon={<Plus size={13} />} onClick={openCreate}>
                         新增配置项
                       </Button>
                       <Select
@@ -328,10 +328,10 @@ export default function ProjectsPage(): React.JSX.Element {
       >
         <Form form={form} layout="vertical" initialValues={{ key: '', value: '' }}>
           <Form.Item name="key" label="配置项 key" rules={[{ required: true, message: '请输入 key（如 user.email）' }]}>
-            <Input placeholder="user.email" style={{ fontFamily: 'Consolas, monospace' }} disabled={editTarget !== null} />
+            <Input placeholder="user.email" style={{ fontFamily: "'JetBrains Mono', monospace" }} disabled={editTarget !== null} />
           </Form.Item>
           <Form.Item name="value" label="值">
-            <Input.TextArea placeholder="配置值" autoSize={{ minRows: 1, maxRows: 4 }} style={{ fontFamily: 'Consolas, monospace' }} />
+            <Input.TextArea placeholder="配置值" autoSize={{ minRows: 1, maxRows: 4 }} style={{ fontFamily: "'JetBrains Mono', monospace" }} />
           </Form.Item>
         </Form>
       </Modal>

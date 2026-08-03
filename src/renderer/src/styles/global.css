@@ -1,10 +1,47 @@
+/* ============================================================
+   Git Switch 设计系统（v2）— Developer Tool / Premium Dark
+   层次：Background → Container → Card → Content → Button → Tag → Text
+   间距：8pt Grid（8 / 16 / 24 / 32）
+   圆角：页面 16 / Card 18~20 / Input·Button 12 / Tag 999
+   边框：1px rgba(255,255,255,.06)；阴影：soft
+   ============================================================ */
+
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --accent-cyan: #22d3ee;
-  --accent-violet: #818cf8;
-  --text-primary: rgba(235, 242, 255, 0.92);
-  --text-secondary: rgba(235, 242, 255, 0.62);
+  /* 色板 */
+  --bg: #0b1220;
+  --sidebar-bg: #121826;
+  --card-bg: #1a2234;
+  --card-bg-hover: #1e2a44;
+  --primary: #3b82f6;
+  --accent: #06b6d4;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* 边框与阴影 */
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.25);
+  --shadow-lift: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --glow-primary: 0 4px 14px rgba(59, 130, 246, 0.35);
+
+  /* 文字层级 */
+  --text-primary: rgba(255, 255, 255, 0.88);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-tertiary: rgba(255, 255, 255, 0.38);
+
+  /* 圆角 */
+  --radius-page: 16px;
+  --radius-card: 18px;
+  --radius-control: 12px;
+  --radius-pill: 999px;
+
+  /* 字体 */
+  --font-sans: 'Inter', 'Segoe UI Variable', 'MiSans', 'HarmonyOS Sans', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+
+  /* 动效 */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -20,105 +57,530 @@ body,
 
 body {
   color: var(--text-primary);
-  font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
-  /* 深空蓝黑渐变底 + 青/紫光斑，科技感 */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* 深色底 + 柔和蓝青光晕（低饱和） */
   background:
-    radial-gradient(900px 500px at 85% -10%, rgba(34, 211, 238, 0.14), transparent 60%),
-    radial-gradient(700px 420px at -10% 110%, rgba(129, 140, 248, 0.16), transparent 60%),
-    linear-gradient(160deg, #0b1120 0%, #070b14 55%, #0a0f1e 100%);
+    radial-gradient(1100px 600px at 85% -10%, rgba(59, 130, 246, 0.07), transparent 60%),
+    radial-gradient(800px 500px at -10% 110%, rgba(6, 182, 212, 0.05), transparent 60%),
+    var(--bg);
   background-attachment: fixed;
   overflow: hidden;
   user-select: none;
 }
 
+::selection {
+  background: rgba(59, 130, 246, 0.35);
+}
+
+/* ---------- 滚动条 ---------- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(34, 211, 238, 0.4);
+  width: 9px;
+  height: 9px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
-/* 玻璃面板 */
-.glass {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 14px;
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: content-box;
 }
 
-/* 科技感渐变文字 */
+/* ---------- 玻璃卡片 ---------- */
+.glass {
+  background: linear-gradient(180deg, rgba(30, 42, 68, 0.72), rgba(26, 34, 52, 0.85));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+
+.glass:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lift);
+}
+
+/* ---------- 渐变文字 ---------- */
 .gradient-text {
-  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+  background: linear-gradient(90deg, #60a5fa, #22d3ee);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* 页面容器 */
+/* ---------- 页面容器 ---------- */
 .page {
   height: 100%;
-  padding: 20px 24px;
+  padding: 24px 32px 32px;
   overflow-y: auto;
 }
 
 .page-title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
+/* ---------- Shell ---------- */
 .app-shell {
   height: 100vh;
 }
 
-.sider-glass {
-  height: 100vh;
-  padding: 14px 10px;
+.app-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  overflow: hidden;
+}
+
+/* ---------- Sidebar ---------- */
+.sider {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.sider-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 12px 16px;
 }
 
 .logo {
-  padding: 6px 10px 14px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  padding: 4px 12px 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  text-decoration: none;
 }
 
 .logo-badge {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-  box-shadow: 0 0 16px rgba(34, 211, 238, 0.5);
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  color: #04121a;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  box-shadow: var(--glow-primary);
+  font-size: 18px;
   flex-shrink: 0;
 }
 
+.logo-name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.logo-sub {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* 导航：hover / active / focus / transition */
+.sider-menu {
+  flex: 1;
+  border-inline-end: none !important;
+  background: transparent !important;
+  padding-top: 8px;
+}
+
+.sider-menu .ant-menu-item {
+  border-radius: 10px;
+  transition:
+    background-color 0.15s var(--ease),
+    color 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+
+.sider-menu .ant-menu-item .ant-menu-item-icon {
+  transition: transform 0.15s var(--ease);
+}
+
+.sider-menu .ant-menu-item:hover .ant-menu-item-icon {
+  transform: scale(1.08);
+}
+
+/* Active：渐变背景 + 左侧高亮条 + 轻微发光 + 图标/文字变亮 */
+.sider-menu .ant-menu-item-selected {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.18), rgba(6, 182, 212, 0.08)) !important;
+  box-shadow:
+    inset 3px 0 0 var(--primary),
+    0 0 18px rgba(59, 130, 246, 0.12);
+  position: relative;
+}
+
+.sider-menu .ant-menu-item-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.sider-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: #93c5fd;
+}
+
+/* Sidebar 底部版本 Footer Card */
 .sider-footer {
-  margin-top: auto;
-  padding: 8px 10px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: var(--font-mono);
   font-size: 11px;
+  color: var(--text-tertiary);
+  line-height: 2;
+}
+
+.sider-footer .ver {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sider-footer .ver b {
   color: var(--text-secondary);
-  line-height: 1.7;
+  font-weight: 500;
+}
+
+/* ---------- Header ---------- */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px 0;
+}
+
+.app-header .h-title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.app-header .h-sub {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.app-header .h-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- Dashboard 统计卡 ---------- */
+.stat-card {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.stat-card .stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.stat-card .stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.stat-card .stat-hint {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Profile Card ---------- */
+.profile-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.profile-card .pc-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.profile-card .pc-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  box-shadow: var(--glow-primary);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+.profile-card .pc-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-card .pc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-card .pc-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.profile-card .pc-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Table 风格化（Sticky 半透明 Header / 行圆角 Hover / Striped） ---------- */
+.ant-table-wrapper .ant-table {
+  background: transparent !important;
+}
+
+.ant-table-wrapper .ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+
+.ant-table-wrapper .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045) !important;
+  transition: background-color 0.15s var(--ease);
+}
+
+/* 行悬停：柔和提亮，非整块灰色 */
+.ant-table-wrapper .ant-table-tbody > tr:hover > td {
+  background: rgba(59, 130, 246, 0.06) !important;
+}
+
+/* Striped 斑马纹 */
+.ant-table-wrapper .ant-table-tbody > tr:nth-child(even) > td {
+  background: rgba(255, 255, 255, 0.012);
+}
+.ant-table-wrapper .ant-table-tbody > tr:nth-child(even):hover > td {
+  background: rgba(59, 130, 246, 0.07) !important;
+}
+
+/* 行圆角 */
+.ant-table-wrapper .ant-table-tbody > tr > td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.ant-table-wrapper .ant-table-tbody > tr > td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* ---------- Input / Select：Focus 蓝色 Glow ---------- */
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18) !important;
+}
+
+.ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+/* ---------- Button 统一 ---------- */
+.ant-btn {
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.15s var(--ease),
+    background-color 0.15s var(--ease),
+    border-color 0.15s var(--ease) !important;
+}
+
+.ant-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.ant-btn-primary:not(:disabled):hover {
+  box-shadow: var(--glow-primary);
+}
+
+/* ---------- Tag：GitHub 风格药丸 ---------- */
+.ant-tag {
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 22px;
+  padding-inline: 10px;
+  border: 1px solid transparent;
+  backdrop-filter: blur(6px);
+}
+
+/* scope 色板：system 橙 / global 紫 / local 绿 / worktree 青 / command 品红 */
+.tag-scope-system {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+}
+.tag-scope-global {
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.14);
+}
+.tag-scope-local {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+}
+.tag-scope-worktree {
+  color: #22d3ee;
+  background: rgba(6, 182, 212, 0.12);
+}
+.tag-scope-command {
+  color: #f472b6;
+  background: rgba(244, 114, 182, 0.14);
+}
+.tag-scope-includeif {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.14);
+}
+
+/* key 高亮色（配置项 key / email 等） */
+.tag-key {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.1);
+}
+.tag-company {
+  color: #22d3ee;
+  background: rgba(6, 182, 212, 0.12);
+}
+
+/* ---------- Empty State ---------- */
+.empty-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 0;
+}
+
+.empty-brand .empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #93c5fd;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(6, 182, 212, 0.1));
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ---------- Skeleton 容器 ---------- */
+.skeleton-block {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ---------- Folder Mapping 可视化 ---------- */
+.folder-map {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    border-color 0.2s var(--ease),
+    background-color 0.2s var(--ease);
+}
+
+.folder-map:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.folder-map .fm-dir {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-map .fm-arrow {
+  color: var(--primary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.folder-map .fm-profile {
+  font-size: 13px;
+  font-weight: 600;
+  color: #93c5fd;
+  flex-shrink: 0;
+}
+
+.folder-map .fm-actions {
+  flex-shrink: 0;
 }

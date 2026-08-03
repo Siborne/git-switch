@@ -3,29 +3,21 @@ import {
   Button,
   Card,
   Checkbox,
+  Col,
   Dropdown,
-  Empty,
   Form,
   Input,
   Modal,
   Popconfirm,
+  Row,
   Select,
+  Skeleton,
   Space,
-  Spin,
-  Table,
   Tag,
   Typography,
   message
 } from 'antd'
-import type { TableProps } from 'antd'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  FolderOpenOutlined,
-  GlobalOutlined,
-  ImportOutlined,
-  PlusOutlined
-} from '@ant-design/icons'
+import { Download, GitBranch, Globe, Pencil, Plus, Trash2, Upload, FolderGit2 } from 'lucide-react'
 import type { Profile, ProfileInput } from '../../../shared/types'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
@@ -51,6 +43,13 @@ const TEMPLATE_ITEMS: { key: string; label: string }[] = [
   { key: 'pull.rebase', label: 'pull.rebase · pull 策略' }
 ]
 
+/** key 前缀 → Tag 样式（GitHub 风格：email 蓝 / company 青 / proxy 橙） */
+function keyTagClass(key: string): string {
+  if (/proxy/i.test(key)) return 'tag-scope-system'
+  if (/company|email/i.test(key)) return 'tag-company'
+  return 'tag-key'
+}
+
 export default function ProfilesPage(): React.JSX.Element {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,13 +61,22 @@ export default function ProfilesPage(): React.JSX.Element {
   const [exportTarget, setExportTarget] = useState<'file' | 'clipboard' | null>(null)
   const [exportSecrets, setExportSecrets] = useState(false)
   const [exportBusy, setExportBusy] = useState(false)
+  const [globalName, setGlobalName] = useState<string | null>(null)
+  const [globalEmail, setGlobalEmail] = useState<string | null>(null)
   const [form] = Form.useForm<ProfileInput>()
   const [messageApi, contextHolder] = message.useMessage()
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true)
     try {
-      setProfiles(await window.gitSwitch.profiles.list())
+      const [p, gn, ge] = await Promise.all([
+        window.gitSwitch.profiles.list(),
+        window.gitSwitch.git.getConfig('user.name'),
+        window.gitSwitch.git.getConfig('user.email')
+      ])
+      setProfiles(p)
+      setGlobalName(gn?.trim() || null)
+      setGlobalEmail(ge?.trim() || null)
     } finally {
       setLoading(false)
     }
@@ -77,6 +85,12 @@ export default function ProfilesPage(): React.JSX.Element {
   useEffect(() => {
     void load()
   }, [load])
+
+  const isDefault = (p: Profile): boolean =>
+    (globalName !== null &&
+      p.items.some((i) => i.key === 'user.name' && i.value === globalName) &&
+      p.items.some((i) => i.key === 'user.email' && i.value === globalEmail)) ||
+    (globalName === null && globalEmail === null && profiles.length === 1)
 
   const openCreate = (): void => {
     setEditing(null)
@@ -95,7 +109,9 @@ export default function ProfilesPage(): React.JSX.Element {
     const input: ProfileInput = {
       name: values.name.trim(),
       description: values.description?.trim() || undefined,
-      items: (values.items ?? []).filter((i) => i && i.key && i.key.trim().length > 0).map((i) => ({ key: i.key.trim(), value: i.value }))
+      items: (values.items ?? [])
+        .filter((i) => i && i.key && i.key.trim().length > 0)
+        .map((i) => ({ key: i.key.trim(), value: i.value }))
     }
     if (editing) {
       await window.gitSwitch.profiles.update(editing.id, input)
@@ -112,6 +128,7 @@ export default function ProfilesPage(): React.JSX.Element {
     try {
       const r = await window.gitSwitch.profiles.applyGlobal(p.id)
       messageApi.success(`「${p.name}」已应用到全局（${r.applied} 项${r.backedUp ? '，原配置已备份' : ''}）`)
+      await load()
     } catch (e) {
       messageApi.error(e instanceof Error ? e.message : String(e))
     }
@@ -195,114 +212,129 @@ export default function ProfilesPage(): React.JSX.Element {
 
   const importExportMenu = {
     items: [
-      { key: 'export-file', label: '导出到文件…', onClick: () => setExportTarget('file') },
-      { key: 'export-clipboard', label: '导出到剪贴板', onClick: () => setExportTarget('clipboard') },
+      { key: 'export-file', label: '导出到文件…', icon: <Download size={14} />, onClick: () => setExportTarget('file') },
+      { key: 'export-clipboard', label: '导出到剪贴板', icon: <Download size={14} />, onClick: () => setExportTarget('clipboard') },
       { type: 'divider' as const },
-      { key: 'import-file', label: '从文件导入…', onClick: () => void doImportFile() },
-      { key: 'import-clipboard', label: '从剪贴板导入', onClick: () => void doImportClipboard() }
+      { key: 'import-file', label: '从文件导入…', icon: <Upload size={14} />, onClick: () => void doImportFile() },
+      { key: 'import-clipboard', label: '从剪贴板导入', icon: <Upload size={14} />, onClick: () => void doImportClipboard() }
     ]
   }
-
-  const columns: TableProps<Profile>['columns'] = [
-    {
-      title: '配置集',
-      key: 'name',
-      width: 220,
-      render: (_, p) => (
-        <div>
-          <Typography.Text strong>{p.name}</Typography.Text>
-          {p.description && (
-            <div>
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {p.description}
-              </Typography.Text>
-            </div>
-          )}
-        </div>
-      )
-    },
-    {
-      title: '配置项',
-      key: 'items',
-      render: (_, p) => (
-        <Space size={[4, 4]} wrap>
-          {p.items.length === 0 && <Typography.Text type="secondary">（空）</Typography.Text>}
-          {p.items.map((it, idx) => (
-            <Tag key={idx} style={{ fontFamily: 'Consolas, monospace' }}>
-              {it.key}={SENSITIVE_RE.test(it.key) ? maskValue(it.value) : it.value}
-            </Tag>
-          ))}
-        </Space>
-      )
-    },
-    {
-      title: '创建时间',
-      key: 'createdAt',
-      width: 170,
-      render: (_, p) => <Typography.Text type="secondary">{fmtTime(p.createdAt)}</Typography.Text>
-    },
-    {
-      title: '操作',
-      key: 'actions',
-      width: 290,
-      render: (_, p) => (
-        <Space size={4}>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(p)}>
-            编辑
-          </Button>
-          <Popconfirm
-            title={`应用「${p.name}」到全局？`}
-            description="覆盖同名配置项，保留其余项；原配置会自动备份可回滚。"
-            okText="应用"
-            onConfirm={() => void applyGlobal(p)}
-          >
-            <Button size="small" icon={<GlobalOutlined />}>
-              应用全局
-            </Button>
-          </Popconfirm>
-          <Button size="small" icon={<FolderOpenOutlined />} onClick={() => openRepoApply(p)}>
-            应用项目
-          </Button>
-          <Popconfirm title={`删除配置集「${p.name}」？`} okText="删除" okButtonProps={{ danger: true }} onConfirm={() => void remove(p)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      )
-    }
-  ]
 
   return (
     <div className="page">
       {contextHolder}
       <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0 }}>
+        <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
           配置集
         </Typography.Title>
         <Typography.Text type="secondary">Profiles</Typography.Text>
         <div style={{ flex: 1 }} />
         <Dropdown menu={importExportMenu}>
-          <Button icon={<ImportOutlined />}>导入 / 导出</Button>
+          <Button icon={<Upload size={15} />}>导入 / 导出</Button>
         </Dropdown>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+        <Button type="primary" icon={<Plus size={15} />} onClick={openCreate}>
           新建配置集
         </Button>
       </div>
-      <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
+      <Typography.Paragraph type="secondary" style={{ marginTop: 6, marginBottom: 20 }}>
         管理多套 Git 身份与配置项，一键应用到全局或指定项目；应用前自动备份原配置，可随时回滚。
       </Typography.Paragraph>
 
-      <Card className="glass" styles={{ body: { padding: 8 } }}>
-        <Spin spinning={loading}>
-          <Table<Profile>
-            rowKey="id"
-            size="small"
-            columns={columns}
-            dataSource={profiles}
-            pagination={false}
-            locale={{ emptyText: <Empty description="还没有配置集，点击右上角新建" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-          />
-        </Spin>
-      </Card>
+      {loading ? (
+        <Row gutter={[16, 16]}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Col key={i} xs={24} md={12} xl={8}>
+              <Card className="glass">
+                <Skeleton active avatar paragraph={{ rows: 3 }} />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      ) : profiles.length === 0 ? (
+        <Card className="glass">
+          <div className="empty-brand">
+            <span className="empty-icon">
+              <GitBranch size={34} />
+            </span>
+            <Typography.Title level={4} style={{ margin: 0 }}>
+              创建你的第一个配置集
+            </Typography.Title>
+            <Typography.Text type="secondary">
+              工作 / 个人 / 开源 —— 每套身份包含 user.name、user.email、签名密钥等配置项
+            </Typography.Text>
+            <Button type="primary" icon={<Plus size={15} />} onClick={openCreate} style={{ marginTop: 8 }}>
+              新建配置集
+            </Button>
+          </div>
+        </Card>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {profiles.map((p) => (
+            <Col key={p.id} xs={24} md={12} xl={8}>
+              <Card className="glass profile-card" styles={{ body: { padding: 0 } }}>
+                <div className="pc-head">
+                  <span className="pc-avatar">{(p.name || '?').charAt(0).toUpperCase()}</span>
+                  <div className="pc-meta">
+                    <Space size={6}>
+                      <Typography.Text strong style={{ fontSize: 15 }}>
+                        {p.name}
+                      </Typography.Text>
+                      {isDefault(p) && <Tag color="cyan" style={{ marginRight: 0 }}>使用中</Tag>}
+                    </Space>
+                    {p.description && (
+                      <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
+                        {p.description}
+                      </Typography.Text>
+                    )}
+                  </div>
+                  <div className="pc-actions">
+                    <Button size="small" icon={<Pencil size={13} />} onClick={() => openEdit(p)} />
+                    <Popconfirm
+                      title={`删除配置集「${p.name}」？`}
+                      okText="删除"
+                      okButtonProps={{ danger: true }}
+                      onConfirm={() => void remove(p)}
+                    >
+                      <Button size="small" danger icon={<Trash2 size={13} />} />
+                    </Popconfirm>
+                  </div>
+                </div>
+                <div className="pc-items">
+                  {p.items.length === 0 ? (
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      （空配置集）
+                    </Typography.Text>
+                  ) : (
+                    p.items.map((it, idx) => (
+                      <Tag key={idx} className={keyTagClass(it.key)} style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace" }}>
+                        {it.key}={SENSITIVE_RE.test(it.key) ? maskValue(it.value) : it.value}
+                      </Tag>
+                    ))
+                  )}
+                </div>
+                <div className="pc-footer">
+                  <Button
+                    size="small"
+                    type="primary"
+                    ghost
+                    icon={<Globe size={13} />}
+                    onClick={() => void applyGlobal(p)}
+                  >
+                    应用全局
+                  </Button>
+                  <Button size="small" icon={<FolderGit2 size={13} />} onClick={() => openRepoApply(p)}>
+                    应用项目
+                  </Button>
+                  <div style={{ flex: 1 }} />
+                  <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+                    {fmtTime(p.createdAt)}
+                  </Typography.Text>
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
 
       {/* 新建 / 编辑 */}
       <Modal
@@ -341,15 +373,15 @@ export default function ProfilesPage(): React.JSX.Element {
                   {fields.map((field) => (
                     <Space.Compact key={field.key} style={{ width: '100%' }}>
                       <Form.Item name={[field.name, 'key']} noStyle rules={[{ required: true, message: 'key 必填' }]}>
-                        <Input placeholder="user.email" style={{ width: '45%', fontFamily: 'Consolas, monospace' }} />
+                        <Input placeholder="user.email" style={{ width: '45%', fontFamily: "'JetBrains Mono', monospace" }} />
                       </Form.Item>
                       <Form.Item name={[field.name, 'value']} noStyle>
-                        <Input placeholder="值" style={{ width: '50%', fontFamily: 'Consolas, monospace' }} />
+                        <Input placeholder="值" style={{ width: '50%', fontFamily: "'JetBrains Mono', monospace" }} />
                       </Form.Item>
-                      <Button icon={<DeleteOutlined />} onClick={() => remove(field.name)} style={{ width: '5%' }} />
+                      <Button icon={<Trash2 size={13} />} onClick={() => remove(field.name)} style={{ width: '5%' }} />
                     </Space.Compact>
                   ))}
-                  <Button block type="dashed" onClick={() => add({ key: '', value: '' })} icon={<PlusOutlined />}>
+                  <Button block type="dashed" onClick={() => add({ key: '', value: '' })} icon={<Plus size={14} />}>
                     添加配置项
                   </Button>
                 </div>
@@ -392,7 +424,7 @@ export default function ProfilesPage(): React.JSX.Element {
         </Typography.Paragraph>
         <Space.Compact style={{ width: '100%' }}>
           <Input value={repoPath} onChange={(e) => setRepoPath(e.target.value)} placeholder="D:\work\project\some-repo" />
-          <Button icon={<FolderOpenOutlined />} onClick={() => void pickRepoDir()}>
+          <Button icon={<FolderGit2 size={15} />} onClick={() => void pickRepoDir()}>
             浏览…
           </Button>
         </Space.Compact>

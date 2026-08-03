@@ -13,18 +13,18 @@ import {
   Typography
 } from 'antd'
 import type { TableProps } from 'antd'
-import { EyeInvisibleOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons'
+import { RefreshCw, Eye, EyeOff } from 'lucide-react'
 import type { GitConfigEntry } from '../../../shared/types'
 
 /** 敏感配置项匹配：命中则默认打码显示 */
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
 
-const SCOPE_COLOR: Record<string, string> = {
-  system: 'gold',
-  global: 'cyan',
-  local: 'green',
-  worktree: 'purple',
-  command: 'magenta'
+const SCOPE_CLASS: Record<string, string> = {
+  system: 'tag-scope-system',
+  global: 'tag-scope-global',
+  local: 'tag-scope-local',
+  worktree: 'tag-scope-worktree',
+  command: 'tag-scope-command'
 }
 
 function maskValue(v: string): string {
@@ -91,7 +91,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
         dataIndex: 'key',
         key: 'key',
         width: 300,
-        render: (k: string) => <span style={{ fontFamily: 'Consolas, "Courier New", monospace' }}>{k}</span>
+        render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
       },
       {
         title: '值',
@@ -103,14 +103,14 @@ export default function ConfigBrowserPage(): React.JSX.Element {
           const show = !sensitive || revealed.has(rid)
           return (
             <Space size={4}>
-              <span style={{ fontFamily: 'Consolas, "Courier New", monospace', wordBreak: 'break-all' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", wordBreak: 'break-all' }}>
                 {show ? v : maskValue(v)}
               </span>
               {sensitive && (
                 <Button
                   type="text"
                   size="small"
-                  icon={show ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                  icon={show ? <EyeOff size={14} /> : <Eye size={14} />}
                   onClick={() => toggleReveal(rid)}
                 />
               )}
@@ -123,7 +123,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
         dataIndex: 'scope',
         key: 'scope',
         width: 96,
-        render: (s: string) => <Tag color={SCOPE_COLOR[s] ?? 'default'}>{s}</Tag>
+        render: (s: string) => <Tag className={SCOPE_CLASS[s] ?? ''} style={{ marginRight: 0 }}>{s}</Tag>
       },
       {
         title: '来源文件',
@@ -132,7 +132,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
         ellipsis: true,
         render: (o: string) => (
           <Tooltip title={o}>
-            <span style={{ fontFamily: 'Consolas, "Courier New", monospace' }}>{o}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{o}</span>
           </Tooltip>
         )
       }
@@ -161,7 +161,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
             { value: 'local', label: `local（${scopeCount.local ?? 0}）` }
           ]}
         />
-        <Button icon={<ReloadOutlined />} onClick={() => void load()}>
+        <Button icon={<RefreshCw size={15} />} onClick={() => void load()}>
           刷新
         </Button>
       </Space>

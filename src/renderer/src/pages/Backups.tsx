@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Empty, Popconfirm, Space, Spin, Table, Tag, Timeline, Typography, message } from 'antd'
-import { RollbackOutlined } from '@ant-design/icons'
+import { Undo2 } from 'lucide-react'
 import type { TableProps } from 'antd'
 import type { BackupMeta, LogEntry } from '../../../shared/types'
 
@@ -83,7 +83,7 @@ export default function BackupsPage(): React.JSX.Element {
       render: (v: string[]) => (
         <Space size={[4, 4]} wrap>
           {v.map((f, i) => (
-            <Tag key={i} style={{ fontFamily: 'Consolas, monospace' }}>
+            <Tag key={i} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {f.split(/[\\/]/).pop()}
             </Tag>
           ))}
@@ -101,7 +101,7 @@ export default function BackupsPage(): React.JSX.Element {
           okText="回滚"
           onConfirm={() => void restore(meta)}
         >
-          <Button size="small" icon={<RollbackOutlined />} loading={restoring === meta.id}>
+          <Button size="small" icon={<Undo2 size={13} />} loading={restoring === meta.id}>
             回滚
           </Button>
         </Popconfirm>
@@ -124,7 +124,7 @@ export default function BackupsPage(): React.JSX.Element {
         </Space>
         {l.detail && (
           <div>
-            <Typography.Text type="secondary" style={{ fontSize: 12, fontFamily: 'Consolas, monospace' }}>
+            <Typography.Text type="secondary" style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>
               {l.detail}
             </Typography.Text>
           </div>
