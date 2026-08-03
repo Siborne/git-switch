@@ -12,7 +12,7 @@ import {
   unsetConfig
 } from './git'
 import type { GitOptions, GitScope } from '../shared/types'
-import { createBackup, listBackups, readBackupContent, restoreBackup } from './backup'
+import { createBackup, diffBackup, listBackups, readBackupContent, restoreBackup } from './backup'
 import {
   applyProfileToGlobal,
   applyProfileToRepo,
@@ -57,6 +57,7 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('backup:list', () => listBackups())
   ipcMain.handle('backup:restore', (_event, id: string) => restoreBackup(id))
   ipcMain.handle('backup:content', (_event, id: string) => readBackupContent(id))
+  ipcMain.handle('backup:diff', (_event, id: string) => diffBackup(id))
 
   /* ---------- profiles ---------- */
   ipcMain.handle('profiles:list', () => listProfiles())

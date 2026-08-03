@@ -5,6 +5,7 @@ import type {
   BackupApi,
   BackupMeta,
   DialogApi,
+  DiffFileResult,
   GitApi,
   GitConfigEntry,
   GitOptions,
@@ -41,7 +42,8 @@ const backupApi: BackupApi = {
   restore: (id: string): Promise<{ restored: string[]; protection: BackupMeta | null }> =>
     ipcRenderer.invoke('backup:restore', id) as Promise<{ restored: string[]; protection: BackupMeta | null }>,
   content: (id: string): Promise<{ file: string; content: string }[]> =>
-    ipcRenderer.invoke('backup:content', id) as Promise<{ file: string; content: string }[]>
+    ipcRenderer.invoke('backup:content', id) as Promise<{ file: string; content: string }[]>,
+  diff: (id: string): Promise<DiffFileResult[]> => ipcRenderer.invoke('backup:diff', id) as Promise<DiffFileResult[]>
 }
 
 const profilesApi: ProfilesApi = {

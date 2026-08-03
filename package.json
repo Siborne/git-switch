@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@ant-design/icons": "^6.3.2",
+    "@types/diff": "^7.0.2",
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
@@ -57,6 +58,7 @@
     "vite": "^7.3.6"
   },
   "dependencies": {
+    "diff": "^9.0.0",
     "lucide-react": "^1.28.0"
   }
 }

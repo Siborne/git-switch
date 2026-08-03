@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs'
 import { join, basename } from 'path'
+import { diffLines } from 'diff'
 import { appendLog, dataDir, readJson, writeJson } from './store'
 
 export interface BackupMeta {
@@ -107,4 +108,65 @@ export async function readBackupContent(id: string): Promise<{ file: string; con
     }
   }
   return out
+}
+
+export interface DiffFileResult {
+  file: string
+  /** 备份点版本是否存在 */
+  hasBackup: boolean
+  /** 当前版本是否存在 */
+  hasCurrent: boolean
+  /** diff 行（前缀 + / - / 空格），行级对比 */
+  diff: { type: 'add' | 'remove' | 'same'; text: string }[]
+  /** 统计：新增/删除行数 */
+  added: number
+  removed: number
+}
+
+/** 对比备份点文件与当前文件的差异（备份 = 旧版本，当前 = 新版本） */
+export async function diffBackup(id: string): Promise<DiffFileResult[]> {
+  const meta = (await readMeta()).find((m) => m.id === id)
+  if (!meta) throw new Error(`备份点不存在: ${id}`)
+
+  const results: DiffFileResult[] = []
+  for (let i = 0; i < meta.files.length; i++) {
+    const backupPath = join(meta.backupDir, `${i}_${basename(meta.files[i])}`)
+    const currentPath = meta.files[i]
+
+    let backupText: string | null = null
+    let currentText: string | null = null
+    try {
+      backupText = await fs.readFile(backupPath, 'utf-8')
+    } catch {
+      // 备份文件缺失
+    }
+    try {
+      currentText = await fs.readFile(currentPath, 'utf-8')
+    } catch {
+      // 当前文件不存在（已被删除）
+    }
+
+    let diff: { type: 'add' | 'remove' | 'same'; text: string }[] = []
+    let added = 0
+    let removed = 0
+    if (backupText !== null || currentText !== null) {
+      const parts = diffLines(backupText ?? '', currentText ?? '')
+      diff = parts.map((p) => {
+        const type = p.added ? 'add' : p.removed ? 'remove' : 'same'
+        if (p.added) added += p.count ?? 0
+        if (p.removed) removed += p.count ?? 0
+        return { type, text: p.value }
+      })
+    }
+
+    results.push({
+      file: currentPath,
+      hasBackup: backupText !== null,
+      hasCurrent: currentText !== null,
+      diff,
+      added,
+      removed
+    })
+  }
+  return results
 }

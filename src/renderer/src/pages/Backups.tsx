@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Empty, Modal, Popconfirm, Space, Spin, Table, Tag, Timeline, Typography, message } from 'antd'
-import { Undo2, FileSearch } from 'lucide-react'
+import { Undo2, FileSearch, GitCompare } from 'lucide-react'
 import type { TableProps } from 'antd'
-import type { BackupMeta, LogEntry } from '../../../shared/types'
+import type { BackupMeta, DiffFileResult, LogEntry } from '../../../shared/types'
 
 const ACTION_LABEL: Record<string, string> = {
   'profile-create': '创建配置集',
@@ -33,6 +33,9 @@ export default function BackupsPage(): React.JSX.Element {
   const [restoring, setRestoring] = useState<string | null>(null)
   const [viewFiles, setViewFiles] = useState<{ file: string; content: string }[] | null>(null)
   const [viewing, setViewing] = useState(false)
+  const [diffFiles, setDiffFiles] = useState<DiffFileResult[] | null>(null)
+  const [diffing, setDiffing] = useState(false)
+  const [diffOpen, setDiffOpen] = useState(false)
   const [messageApi, contextHolder] = message.useMessage()
 
   const load = useCallback(async (): Promise<void> => {
@@ -73,6 +76,19 @@ export default function BackupsPage(): React.JSX.Element {
     }
   }
 
+  const showDiff = async (meta: BackupMeta): Promise<void> => {
+    setDiffing(true)
+    try {
+      const files = await window.gitSwitch.backup.diff(meta.id)
+      setDiffFiles(files)
+      setDiffOpen(true)
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      setDiffing(false)
+    }
+  }
+
   const columns: TableProps<BackupMeta>['columns'] = [
     {
       title: '备份时间',
@@ -105,9 +121,12 @@ export default function BackupsPage(): React.JSX.Element {
     {
       title: '操作',
       key: 'actions',
-      width: 160,
+      width: 210,
       render: (_, meta) => (
         <Space size={4}>
+          <Button size="small" icon={<GitCompare size={13} />} loading={diffing} onClick={() => void showDiff(meta)}>
+            对比
+          </Button>
           <Button size="small" icon={<FileSearch size={13} />} onClick={() => void viewContent(meta)}>
             查看
           </Button>
@@ -219,6 +238,64 @@ export default function BackupsPage(): React.JSX.Element {
                 }}
               >
                 {f.content}
+              </pre>
+            </div>
+          ))}
+        </Space>
+      </Modal>
+
+      {/* 对比差异 */}
+      <Modal
+        title="对比备份点与当前配置"
+        open={diffOpen}
+        onCancel={() => setDiffOpen(false)}
+        footer={null}
+        width={860}
+        destroyOnHidden
+      >
+        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          {(diffFiles ?? []).length === 0 && <Typography.Text type="secondary">没有可对比的文件</Typography.Text>}
+          {(diffFiles ?? []).map((f, i) => (
+            <div key={i}>
+              <Space size={8} style={{ marginBottom: 6 }}>
+                <Typography.Text style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{f.file}</Typography.Text>
+                {!f.hasBackup && <Tag color="orange">备份缺失</Tag>}
+                {!f.hasCurrent && <Tag color="red">当前已删除</Tag>}
+                {f.added > 0 && (
+                  <Tag style={{ color: '#4ade80', background: 'rgba(34,197,94,0.1)', marginRight: 0 }}>+{f.added}</Tag>
+                )}
+                {f.removed > 0 && (
+                  <Tag style={{ color: '#f87171', background: 'rgba(239,68,68,0.1)', marginRight: 0 }}>-{f.removed}</Tag>
+                )}
+              </Space>
+              <pre
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  borderRadius: 10,
+                  overflow: 'auto',
+                  maxHeight: 300,
+                  fontSize: 12,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  lineHeight: 1.7
+                }}
+              >
+                {f.diff.map((line, li) => (
+                  <div
+                    key={li}
+                    style={{
+                      background:
+                        line.type === 'add' ? 'rgba(34,197,94,0.12)' : line.type === 'remove' ? 'rgba(239,68,68,0.12)' : 'transparent',
+                      color: line.type === 'add' ? '#4ade80' : line.type === 'remove' ? '#f87171' : 'rgba(255,255,255,0.6)',
+                      padding: '0 12px',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all'
+                    }}
+                  >
+                    {line.type === 'add' ? '+' : line.type === 'remove' ? '-' : ' '}
+                    {line.text.replace(/\n$/, '')}
+                  </div>
+                ))}
               </pre>
             </div>
           ))}

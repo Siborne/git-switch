@@ -10,7 +10,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import { setDataDir } from './store'
 import { applyProfileToRepo, createProfile, deleteProfile, listProfiles } from './profiles'
-import { listBackups, restoreBackup } from './backup'
+import { listBackups, restoreBackup, diffBackup } from './backup'
 import { runGit, setConfig } from './git'
 import { createIncludeRule, deleteIncludeRule, syncIncludeRules } from './includeIf'
 import { exportProfiles, importProfiles } from './profiles'
@@ -82,6 +82,15 @@ export async function runSmoke(): Promise<void> {
       // key 不存在（退出码 1）
     }
     assert(localName === '', `回滚后 local user.name 已撤销（当前: "${localName}"，应为空）`)
+
+    // 6.5 diff 链路：修改后对比备份点应检测到差异
+    await setConfig('user.email', 'changed@test.dev', 'local', { cwd: repo })
+    const diffRes = await diffBackup(backups[0].id)
+    const repoDiff = diffRes.find((r) => r.file.endsWith(`${'config'}`))
+    assert(repoDiff !== undefined, 'diff 结果包含仓库配置')
+    assert(repoDiff !== undefined && (repoDiff.added > 0 || repoDiff.removed > 0), `diff 检测到变更（+${repoDiff?.added}/-${repoDiff?.removed}）`)
+    await restoreBackup(backups[0].id)
+    console.log('[smoke] ok - diff 链路验证通过')
 
     // 7. 删除配置集
     await deleteProfile(p.id)

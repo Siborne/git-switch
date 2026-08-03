@@ -75,6 +75,20 @@ export interface BackupMeta {
   backupDir: string
 }
 
+export interface DiffLine {
+  type: 'add' | 'remove' | 'same'
+  text: string
+}
+
+export interface DiffFileResult {
+  file: string
+  hasBackup: boolean
+  hasCurrent: boolean
+  diff: DiffLine[]
+  added: number
+  removed: number
+}
+
 export interface BackupApi {
   /** 备份点列表（新→旧） */
   list: () => Promise<BackupMeta[]>
@@ -82,6 +96,8 @@ export interface BackupApi {
   restore: (id: string) => Promise<{ restored: string[]; protection: BackupMeta | null }>
   /** 读取备份点文件内容（查看用） */
   content: (id: string) => Promise<{ file: string; content: string }[]>
+  /** 对比备份点与当前文件的差异（备份 = 旧，当前 = 新） */
+  diff: (id: string) => Promise<DiffFileResult[]>
 }
 
 /* ---------- 配置集 ---------- */
