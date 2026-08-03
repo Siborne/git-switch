@@ -183,6 +183,25 @@ export async function getCurrentBranch(cwd: string): Promise<string | null> {
   }
 }
 
+export interface LastCommitInfo {
+  hash: string
+  author: string
+  subject: string
+  date: string
+}
+
+/** 仓库最近一次提交信息；无提交返回 null */
+export async function getLastCommit(cwd: string): Promise<LastCommitInfo | null> {
+  try {
+    const out = await runGit(['log', '-1', '--format=%h%x1f%an%x1f%s%x1f%ad', '--date=short'], { cwd })
+    const [hash, author, subject, date] = out.trim().split('\x1f')
+    if (!hash) return null
+    return { hash, author, subject, date }
+  } catch {
+    return null
+  }
+}
+
 function assertScope(scope: GitScope): void {
   if (!VALID_SCOPES.includes(scope)) {
     throw new GitError(`非法的 scope: ${scope}`, [], null, '')

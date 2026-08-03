@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Layout, Menu } from 'antd'
+import { Button, Layout, Menu, Select, message } from 'antd'
 import {
   GitBranch,
   IdCard,
@@ -19,6 +19,7 @@ import BackupsPage from './pages/Backups'
 import IncludeIfPage from './pages/IncludeIf'
 import DashboardPage from './pages/Dashboard'
 import OnboardingModal from './components/OnboardingModal'
+import type { Profile } from '../../shared/types'
 
 const { Sider, Content } = Layout
 
@@ -47,6 +48,9 @@ export default function App(): React.JSX.Element {
   const [onboardingOpen, setOnboardingOpen] = useState(false)
   const [versions, setVersions] = useState<{ electron: string; node: string; chrome: string } | null>(null)
   const [gitVersion, setGitVersion] = useState<string | null>(null)
+  const [quickProfiles, setQuickProfiles] = useState<Profile[]>([])
+  const [quickApplying, setQuickApplying] = useState(false)
+  const [messageApi, contextHolder] = message.useMessage()
 
   useEffect(() => {
     setVersions(window.gitSwitch.versions)
@@ -54,7 +58,37 @@ export default function App(): React.JSX.Element {
     void window.gitSwitch.onboarding.status().then((done) => {
       if (!done) setOnboardingOpen(true)
     })
+    void window.gitSwitch.profiles.list().then(setQuickProfiles)
   }, [])
+
+  // 键盘导航：Ctrl/Cmd + 1~7 切换页面
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= String(menuItems.length)) {
+        const item = menuItems[Number(e.key) - 1]
+        if (item) {
+          e.preventDefault()
+          setActive(item.key)
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  const quickApply = async (id: string): Promise<void> => {
+    const p = quickProfiles.find((x) => x.id === id)
+    if (!p) return
+    setQuickApplying(true)
+    try {
+      const r = await window.gitSwitch.profiles.applyGlobal(id)
+      messageApi.success(`「${p.name}」已应用到全局（${r.applied} 项${r.backedUp ? '，原配置已备份' : ''}）`)
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      setQuickApplying(false)
+    }
+  }
 
   const pageTitle: Record<string, string> = {
     dashboard: '概览',
@@ -104,12 +138,22 @@ export default function App(): React.JSX.Element {
         </div>
       </Sider>
       <Content className="app-content">
+        {contextHolder}
         <div className="app-header">
           <div>
             <div className="h-title">{pageTitle[active]}</div>
             <div className="h-sub">Git Identity &amp; Profile Manager for Developers</div>
           </div>
           <div className="h-actions">
+            <Select
+              size="middle"
+              style={{ width: 210 }}
+              placeholder="快速应用配置集…"
+              loading={quickApplying}
+              onChange={(id: string) => void quickApply(id)}
+              options={quickProfiles.map((p) => ({ value: p.id, label: p.name }))}
+              suffixIcon={null}
+            />
             <Button href="https://github.com/Siborne/git-switch" target="_blank" icon={<ExternalLink size={15} />}>
               GitHub
             </Button>

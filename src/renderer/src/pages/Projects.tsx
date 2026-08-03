@@ -19,8 +19,8 @@ import {
   message
 } from 'antd'
 import type { TableProps } from 'antd'
-import { Pencil, Trash2, FolderGit2, Plus, RefreshCw, GitBranch, Globe } from 'lucide-react'
-import type { GitConfigEntry, Profile } from '../../../shared/types'
+import { Pencil, Trash2, FolderGit2, Plus, RefreshCw, GitBranch, Globe, GitCommitHorizontal } from 'lucide-react'
+import type { GitConfigEntry, LastCommitInfo, Profile } from '../../../shared/types'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
 
@@ -46,6 +46,7 @@ export default function ProjectsPage(): React.JSX.Element {
   const [opened, setOpened] = useState(false)
   const [remoteUrl, setRemoteUrl] = useState<string | null>(null)
   const [branch, setBranch] = useState<string | null>(null)
+  const [lastCommit, setLastCommit] = useState<LastCommitInfo | null>(null)
   const [localEntries, setLocalEntries] = useState<GitConfigEntry[]>([])
   const [allEntries, setAllEntries] = useState<GitConfigEntry[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
@@ -59,15 +60,17 @@ export default function ProjectsPage(): React.JSX.Element {
   const [messageApi, contextHolder] = message.useMessage()
 
   const loadRepo = useCallback(async (path: string): Promise<void> => {
-    const [all, url, br] = await Promise.all([
+    const [all, url, br, lc] = await Promise.all([
       window.gitSwitch.git.listConfig({ cwd: path }),
       window.gitSwitch.git.remoteUrl(path),
-      window.gitSwitch.git.currentBranch(path)
+      window.gitSwitch.git.currentBranch(path),
+      window.gitSwitch.git.lastCommit(path)
     ])
     setAllEntries(all)
     setLocalEntries(all.filter((e) => e.scope === 'local'))
     setRemoteUrl(url)
     setBranch(br)
+    setLastCommit(lc)
   }, [])
 
   const openRepo = async (): Promise<void> => {
@@ -287,6 +290,20 @@ export default function ProjectsPage(): React.JSX.Element {
               <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                 未配置 remote origin
               </Typography.Text>
+            )}
+            {lastCommit && (
+              <Space size={6} style={{ minWidth: 0 }}>
+                <GitCommitHorizontal size={14} color="#8b5cf6" />
+                <Tag style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace", color: '#a78bfa', background: 'rgba(139,92,246,0.12)' }}>
+                  {lastCommit.hash}
+                </Tag>
+                <Typography.Text style={{ fontSize: 12 }} ellipsis={{ tooltip: lastCommit.subject }}>
+                  {lastCommit.subject}
+                </Typography.Text>
+                <Typography.Text type="secondary" style={{ fontSize: 11, flexShrink: 0 }}>
+                  {lastCommit.author} · {lastCommit.date}
+                </Typography.Text>
+              </Space>
             )}
           </Space>
           <Tabs

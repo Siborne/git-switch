@@ -13,6 +13,7 @@ import type {
   IncludeApi,
   IncludeRule,
   ImportResult,
+  LastCommitInfo,
   LogEntry,
   LogsApi,
   OnboardingApi,
@@ -34,7 +35,8 @@ const gitApi: GitApi = {
     ipcRenderer.invoke('git:unsetConfig', key, scope, opts),
   isRepo: (dir: string): Promise<boolean> => ipcRenderer.invoke('git:isRepo', dir),
   remoteUrl: (dir: string): Promise<string | null> => ipcRenderer.invoke('git:remoteUrl', dir) as Promise<string | null>,
-  currentBranch: (dir: string): Promise<string | null> => ipcRenderer.invoke('git:currentBranch', dir) as Promise<string | null>
+  currentBranch: (dir: string): Promise<string | null> => ipcRenderer.invoke('git:currentBranch', dir) as Promise<string | null>,
+  lastCommit: (dir: string): Promise<LastCommitInfo | null> => ipcRenderer.invoke('git:lastCommit', dir) as Promise<LastCommitInfo | null>
 }
 
 const backupApi: BackupApi = {

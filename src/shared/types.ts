@@ -41,6 +41,15 @@ export interface GitApi {
   remoteUrl: (dir: string) => Promise<string | null>
   /** 仓库当前分支名；detached HEAD 返回 null */
   currentBranch: (dir: string) => Promise<string | null>
+  /** 仓库最近一次提交；无提交返回 null */
+  lastCommit: (dir: string) => Promise<LastCommitInfo | null>
+}
+
+export interface LastCommitInfo {
+  hash: string
+  author: string
+  subject: string
+  date: string
 }
 
 export interface GitSwitchApi {

@@ -4,6 +4,7 @@ import {
   findGit,
   getConfig,
   getCurrentBranch,
+  getLastCommit,
   getRemoteUrl,
   gitVersion,
   isGitRepo,
@@ -52,6 +53,7 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('git:isRepo', (_event, dir: string) => isGitRepo(dir))
   ipcMain.handle('git:remoteUrl', (_event, dir: string) => getRemoteUrl(dir))
   ipcMain.handle('git:currentBranch', (_event, dir: string) => getCurrentBranch(dir))
+  ipcMain.handle('git:lastCommit', (_event, dir: string) => getLastCommit(dir))
 
   /* ---------- backup ---------- */
   ipcMain.handle('backup:list', () => listBackups())

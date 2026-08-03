@@ -11,7 +11,7 @@ import { join } from 'path'
 import { setDataDir } from './store'
 import { applyProfileToRepo, createProfile, deleteProfile, listProfiles } from './profiles'
 import { listBackups, restoreBackup, diffBackup } from './backup'
-import { runGit, setConfig } from './git'
+import { runGit, setConfig, getLastCommit } from './git'
 import { createIncludeRule, deleteIncludeRule, syncIncludeRules } from './includeIf'
 import { exportProfiles, importProfiles } from './profiles'
 
@@ -91,6 +91,15 @@ export async function runSmoke(): Promise<void> {
     assert(repoDiff !== undefined && (repoDiff.added > 0 || repoDiff.removed > 0), `diff 检测到变更（+${repoDiff?.added}/-${repoDiff?.removed}）`)
     await restoreBackup(backups[0].id)
     console.log('[smoke] ok - diff 链路验证通过')
+
+    // 6.6 lastCommit 链路
+    await runGit(
+      ['-c', 'user.name=Smoke', '-c', 'user.email=smoke@test.dev', 'commit', '--allow-empty', '-m', 'smoke commit'],
+      { cwd: repo }
+    )
+    const lc = await getLastCommit(repo)
+    assert(lc !== null && lc.subject === 'smoke commit', `lastCommit 读取成功（${lc?.hash} ${lc?.subject}）`)
+    console.log('[smoke] ok - lastCommit 链路验证通过')
 
     // 7. 删除配置集
     await deleteProfile(p.id)

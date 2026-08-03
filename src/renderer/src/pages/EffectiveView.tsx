@@ -11,7 +11,8 @@ import {
   Table,
   Tag,
   Tooltip,
-  Typography
+  Typography,
+  message
 } from 'antd'
 import type { TableProps } from 'antd'
 import { FolderGit2, RefreshCw } from 'lucide-react'
@@ -67,6 +68,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [keyword, setKeyword] = useState('')
   const [scopeFilter, setScopeFilter] = useState('all')
+  const [messageApi, contextHolder] = message.useMessage()
 
   const load = useCallback(async (path?: string): Promise<void> => {
     setLoading(true)
@@ -102,6 +104,15 @@ export default function EffectiveViewPage(): React.JSX.Element {
     if (dir) {
       setRepoPath(dir)
       await openRepo()
+    }
+  }
+
+  const copyFinalValue = async (g: KeyGroup): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(g.finalValue)
+      messageApi.success(`已复制 ${g.key} 的最终值`)
+    } catch {
+      messageApi.error('复制失败')
     }
   }
 
@@ -157,6 +168,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
 
   return (
     <div className="page">
+      {contextHolder}
       <div className="page-title">
         <Typography.Title level={3} style={{ margin: 0 }}>
           生效值
@@ -211,6 +223,12 @@ export default function EffectiveViewPage(): React.JSX.Element {
             size="small"
             columns={columns}
             dataSource={filtered}
+            onRow={(record) => ({
+              onContextMenu: (e) => {
+                e.preventDefault()
+                void copyFinalValue(record)
+              }
+            })}
             pagination={{ pageSize: 20, showSizeChanger: false }}
             locale={{ emptyText: <Empty description="暂无配置" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
           />
