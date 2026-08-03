@@ -226,12 +226,7 @@ export default function ProfilesPage(): React.JSX.Element {
   return (
     <div className="page">
       {contextHolder}
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          {t('配置集', 'Profiles')}
-        </Typography.Title>
-        <Typography.Text type="secondary">Profiles</Typography.Text>
-        <div style={{ flex: 1 }} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginBottom: 16 }}>
         <Dropdown menu={importExportMenu}>
           <Button icon={<Upload size={15} />}>{t('导入 / 导出', 'Import / Export')}</Button>
         </Dropdown>
@@ -239,7 +234,7 @@ export default function ProfilesPage(): React.JSX.Element {
           {t('新建配置集', 'New Profile')}
         </Button>
       </div>
-      <Typography.Paragraph type="secondary" style={{ marginTop: 6, marginBottom: 20 }}>
+      <Typography.Paragraph type="secondary" style={{ marginBottom: 20 }}>
         {t('管理多套 Git 身份与配置项，一键应用到全局或指定项目；应用前自动备份原配置，可随时回滚。', 'Manage multiple Git identities and config items — apply to global or a repo with one click; originals are auto-backed-up and restorable.')}
       </Typography.Paragraph>
 

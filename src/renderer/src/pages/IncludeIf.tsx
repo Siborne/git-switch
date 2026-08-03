@@ -114,12 +114,7 @@ export default function IncludeIfPage(): React.JSX.Element {
   return (
     <div className="page">
       {contextHolder}
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          {t('自动切换', 'Auto Switch')}
-        </Typography.Title>
-        <Typography.Text type="secondary">includeIf · Folder Mapping</Typography.Text>
-        <div style={{ flex: 1 }} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginBottom: 16 }}>
         <Button type="primary" icon={<Plus size={15} />} onClick={openCreate} disabled={profiles.length === 0}>
           {t('新建映射', 'New Mapping')}
         </Button>

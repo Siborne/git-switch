@@ -119,13 +119,6 @@ export default function DashboardPage(): React.JSX.Element {
 
   return (
     <div className="page">
-      <div className="page-title" style={{ marginBottom: 20 }}>
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          {t('概览', 'Overview')}
-        </Typography.Title>
-        <Typography.Text type="secondary">Overview</Typography.Text>
-      </div>
-
       <Spin spinning={loading}>
         <Row gutter={[16, 16]}>
           {stats.map((s) => (

@@ -246,13 +246,6 @@ export default function ProjectsPage(): React.JSX.Element {
   return (
     <div className="page">
       {contextHolder}
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          项目配置
-        </Typography.Title>
-        <Typography.Text type="secondary">Local scope</Typography.Text>
-      </div>
-
       <Space wrap style={{ marginTop: 12, marginBottom: 12 }}>
         <Input
           style={{ width: 380 }}

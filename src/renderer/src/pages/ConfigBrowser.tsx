@@ -147,13 +147,6 @@ export default function ConfigBrowserPage(): React.JSX.Element {
 
   return (
     <div className="page">
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          {t('配置浏览器', 'Config Browser')}
-        </Typography.Title>
-        <Typography.Text type="secondary">Config browser</Typography.Text>
-      </div>
-
       <Space wrap style={{ marginTop: 12, marginBottom: 12 }}>
         <Tag color={gitFound === false ? 'red' : 'cyan'}>{gitVersion ?? (gitFound === null ? '检测中…' : 'git 未找到')}</Tag>
         <Select

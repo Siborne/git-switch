@@ -19,13 +19,7 @@ export default function SettingsPage(props: Props): React.JSX.Element {
 
   return (
     <div className="page">
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          {t('设置', 'Settings')}
-        </Typography.Title>
-        <Typography.Text type="secondary">{t('Settings', 'Preferences')}</Typography.Text>
-      </div>
-      <Typography.Paragraph type="secondary" style={{ marginTop: 6, marginBottom: 20 }}>
+      <Typography.Paragraph type="secondary" style={{ marginBottom: 20 }}>
         {t('主题与语言默认跟随系统，也可手动指定。', 'Theme and language follow the system by default; you can override them.')}
       </Typography.Paragraph>
 

@@ -175,12 +175,6 @@ export default function EffectiveViewPage(): React.JSX.Element {
   return (
     <div className="page">
       {contextHolder}
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          {t('生效值', 'Effective Values')}
-        </Typography.Title>
-        <Typography.Text type="secondary">Effective values</Typography.Text>
-      </div>
       <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
         system / global / local 多层叠加后的最终生效配置；不选择仓库时展示当前目录视角，可选择仓库查看其生效配置。
       </Typography.Paragraph>

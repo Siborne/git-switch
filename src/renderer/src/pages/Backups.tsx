@@ -173,12 +173,6 @@ export default function BackupsPage(): React.JSX.Element {
   return (
     <div className="page">
       {contextHolder}
-      <div className="page-title">
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          {t('备份与回滚', 'Backups & Restore')}
-        </Typography.Title>
-        <Typography.Text type="secondary">Backups</Typography.Text>
-      </div>
       <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
         每次切换/写入前自动备份配置文件，可随时回滚；回滚前也会保护当前状态，保证可逆。
       </Typography.Paragraph>
