@@ -1,4 +1,4 @@
-import { ipcMain, dialog, clipboard } from 'electron'
+import { ipcMain, dialog, clipboard, BrowserWindow } from 'electron'
 import { promises as fs } from 'fs'
 import {
   findGit,
@@ -113,6 +113,20 @@ export function registerIpcHandlers(): void {
 
   /* ---------- logs ---------- */
   ipcMain.handle('logs:list', () => readLog())
+
+  /* ---------- 窗口控制（自定义标题栏） ---------- */
+  ipcMain.on('window:minimize', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.minimize()
+  })
+  ipcMain.on('window:toggleMaximize', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return
+    if (win.isMaximized()) win.unmaximize()
+    else win.maximize()
+  })
+  ipcMain.on('window:hide', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.hide()
+  })
 
   /* ---------- onboarding ---------- */
   ipcMain.handle('onboarding:status', () => isOnboardingDone())

@@ -15,7 +15,8 @@ function createWindow(): void {
     minHeight: 640,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: '#070b14',
+    frame: false,
+    backgroundColor: '#0B1220',
     title: 'Git Switch',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -28,6 +29,14 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  // 最大化状态同步给渲染层（标题栏图标切换）
+  mainWindow.on('maximize', () => {
+    mainWindow.webContents.send('window:maximized', true)
+  })
+  mainWindow.on('unmaximize', () => {
+    mainWindow.webContents.send('window:maximized', false)
   })
 
   // 关闭窗口时最小化到系统托盘（托盘「退出」才真正退出）

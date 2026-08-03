@@ -1,12 +1,12 @@
 /* ============================================================
-   Git Switch 设计系统（v2）— Developer Tool / Premium Dark
+   Git Switch 设计系统（v2）— Developer Tool
+   暗色（默认）+ 浅色（html[data-theme='light'] 切换）
    层次：Background → Container → Card → Content → Button → Tag → Text
-   间距：8pt Grid（8 / 16 / 24 / 32）
-   圆角：页面 16 / Card 18~20 / Input·Button 12 / Tag 999
-   边框：1px rgba(255,255,255,.06)；阴影：soft
+   间距：8pt Grid；圆角：页面 16 / Card 18~20 / Input·Button 12 / Tag 999
    ============================================================ */
 
-:root {
+:root,
+:root[data-theme='dark'] {
   /* 色板 */
   --bg: #0b1220;
   --sidebar-bg: #121826;
@@ -30,6 +30,19 @@
   --text-secondary: rgba(255, 255, 255, 0.6);
   --text-tertiary: rgba(255, 255, 255, 0.38);
 
+  /* 交互层 */
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --hover-bg-strong: rgba(255, 255, 255, 0.08);
+  --table-stripe: rgba(255, 255, 255, 0.012);
+  --table-row-hover: rgba(59, 130, 246, 0.06);
+  --table-row-hover-even: rgba(59, 130, 246, 0.07);
+  --code-bg: rgba(11, 18, 32, 0.6);
+  --input-placeholder: rgba(255, 255, 255, 0.22);
+
+  /* 背景光晕 */
+  --bg-glow-1: rgba(59, 130, 246, 0.07);
+  --bg-glow-2: rgba(6, 182, 212, 0.05);
+
   /* 圆角 */
   --radius-page: 16px;
   --radius-card: 18px;
@@ -42,6 +55,36 @@
 
   /* 动效 */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root[data-theme='light'] {
+  --bg: #f4f6fb;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --card-bg-hover: #f8fafc;
+  --primary: #2563eb;
+  --accent: #0891b2;
+
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --shadow-soft: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --shadow-lift: 0 12px 40px rgba(15, 23, 42, 0.12);
+  --glow-primary: 0 4px 14px rgba(37, 99, 235, 0.25);
+
+  --text-primary: rgba(15, 23, 42, 0.88);
+  --text-secondary: rgba(15, 23, 42, 0.62);
+  --text-tertiary: rgba(15, 23, 42, 0.42);
+
+  --hover-bg: rgba(15, 23, 42, 0.04);
+  --hover-bg-strong: rgba(15, 23, 42, 0.07);
+  --table-stripe: rgba(15, 23, 42, 0.015);
+  --table-row-hover: rgba(37, 99, 235, 0.06);
+  --table-row-hover-even: rgba(37, 99, 235, 0.07);
+  --code-bg: rgba(241, 245, 249, 0.9);
+  --input-placeholder: rgba(15, 23, 42, 0.25);
+
+  --bg-glow-1: rgba(37, 99, 235, 0.05);
+  --bg-glow-2: rgba(8, 145, 178, 0.04);
 }
 
 * {
@@ -60,10 +103,9 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* 深色底 + 柔和蓝青光晕（低饱和） */
   background:
-    radial-gradient(1100px 600px at 85% -10%, rgba(59, 130, 246, 0.07), transparent 60%),
-    radial-gradient(800px 500px at -10% 110%, rgba(6, 182, 212, 0.05), transparent 60%),
+    radial-gradient(1100px 600px at 85% -10%, var(--bg-glow-1), transparent 60%),
+    radial-gradient(800px 500px at -10% 110%, var(--bg-glow-2), transparent 60%),
     var(--bg);
   background-attachment: fixed;
   overflow: hidden;
@@ -83,23 +125,21 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--hover-bg-strong);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--text-tertiary);
   background-clip: content-box;
 }
 
 /* ---------- 玻璃卡片 ---------- */
 .glass {
-  background: linear-gradient(180deg, rgba(30, 42, 68, 0.72), rgba(26, 34, 52, 0.85));
+  background: linear-gradient(180deg, var(--card-bg-hover), var(--card-bg));
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
   box-shadow: var(--shadow-soft);
   transition:
     border-color 0.2s var(--ease),
@@ -120,6 +160,68 @@ body {
   color: transparent;
 }
 
+:root[data-theme='light'] .gradient-text {
+  background: linear-gradient(90deg, #2563eb, #0891b2);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ---------- 自定义标题栏 ---------- */
+.titlebar {
+  height: 38px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar-bg);
+}
+
+.titlebar-drag {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  -webkit-app-region: drag;
+}
+
+.titlebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+.titlebar-controls {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.tb-btn {
+  width: 46px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color 0.15s var(--ease),
+    color 0.15s var(--ease);
+}
+
+.tb-btn:hover {
+  background: var(--hover-bg-strong);
+  color: var(--text-primary);
+}
+
+.tb-close:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
 /* ---------- 页面容器 ---------- */
 .page {
   height: 100%;
@@ -136,9 +238,19 @@ body {
 /* ---------- Shell ---------- */
 .app-shell {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
 }
 
 .app-content {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -146,7 +258,7 @@ body {
 
 /* ---------- Sidebar ---------- */
 .sider {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
@@ -165,6 +277,7 @@ body {
   align-items: center;
   gap: 12px;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .logo-badge {
@@ -175,7 +288,7 @@ body {
   align-items: center;
   justify-content: center;
   color: #fff;
-  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   box-shadow: var(--glow-primary);
   font-size: 18px;
   flex-shrink: 0;
@@ -196,7 +309,7 @@ body {
   margin-top: 1px;
 }
 
-/* 导航：hover / active / focus / transition */
+/* 导航 */
 .sider-menu {
   flex: 1;
   border-inline-end: none !important;
@@ -220,13 +333,20 @@ body {
   transform: scale(1.08);
 }
 
-/* Active：渐变背景 + 左侧高亮条 + 轻微发光 + 图标/文字变亮 */
+/* Active：渐变背景 + 左侧高亮条 + 轻微发光 */
 .sider-menu .ant-menu-item-selected {
   background: linear-gradient(90deg, rgba(59, 130, 246, 0.18), rgba(6, 182, 212, 0.08)) !important;
   box-shadow:
     inset 3px 0 0 var(--primary),
     0 0 18px rgba(59, 130, 246, 0.12);
   position: relative;
+}
+
+:root[data-theme='light'] .sider-menu .ant-menu-item-selected {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.14), rgba(8, 145, 178, 0.06)) !important;
+  box-shadow:
+    inset 3px 0 0 var(--primary),
+    0 0 18px rgba(37, 99, 235, 0.1);
 }
 
 .sider-menu .ant-menu-item-selected::after {
@@ -238,8 +358,16 @@ body {
   pointer-events: none;
 }
 
+:root[data-theme='light'] .sider-menu .ant-menu-item-selected::after {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent 70%);
+}
+
 .sider-menu .ant-menu-item-selected .ant-menu-item-icon {
   color: #93c5fd;
+}
+
+:root[data-theme='light'] .sider-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: #2563eb;
 }
 
 /* Sidebar 底部版本 Footer Card */
@@ -248,7 +376,7 @@ body {
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--hover-bg);
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-tertiary);
@@ -299,7 +427,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  cursor: pointer;
+  cursor: default;
 }
 
 .stat-card .stat-icon {
@@ -356,7 +484,7 @@ body {
   font-size: 18px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   box-shadow: var(--glow-primary);
   flex-shrink: 0;
   font-family: var(--font-mono);
@@ -386,13 +514,13 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* ---------- Table 风格化（Sticky 半透明 Header / 行圆角 Hover / Striped） ---------- */
+/* ---------- Table 风格化 ---------- */
 .ant-table-wrapper .ant-table {
   background: transparent !important;
 }
 
 .ant-table-wrapper .ant-table-thead > tr > th {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--hover-bg) !important;
   border-bottom: 1px solid var(--border) !important;
   font-weight: 500;
   font-size: 12px;
@@ -405,24 +533,21 @@ body {
 }
 
 .ant-table-wrapper .ant-table-tbody > tr > td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.045) !important;
+  border-bottom: 1px solid var(--border) !important;
   transition: background-color 0.15s var(--ease);
 }
 
-/* 行悬停：柔和提亮，非整块灰色 */
 .ant-table-wrapper .ant-table-tbody > tr:hover > td {
-  background: rgba(59, 130, 246, 0.06) !important;
+  background: var(--table-row-hover) !important;
 }
 
-/* Striped 斑马纹 */
 .ant-table-wrapper .ant-table-tbody > tr:nth-child(even) > td {
-  background: rgba(255, 255, 255, 0.012);
+  background: var(--table-stripe);
 }
 .ant-table-wrapper .ant-table-tbody > tr:nth-child(even):hover > td {
-  background: rgba(59, 130, 246, 0.07) !important;
+  background: var(--table-row-hover-even) !important;
 }
 
-/* 行圆角 */
 .ant-table-wrapper .ant-table-tbody > tr > td:first-child {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
@@ -440,11 +565,17 @@ body {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18) !important;
 }
 
-.ant-input::placeholder {
-  color: rgba(255, 255, 255, 0.22);
+:root[data-theme='light'] .ant-input:focus,
+:root[data-theme='light'] .ant-input-focused,
+:root[data-theme='light'] .ant-select-focused .ant-select-selector {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
-/* ---------- Button 统一 ---------- */
+.ant-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* ---------- Button ---------- */
 .ant-btn {
   transition:
     transform 0.15s var(--ease),
@@ -469,42 +600,60 @@ body {
   line-height: 22px;
   padding-inline: 10px;
   border: 1px solid transparent;
-  backdrop-filter: blur(6px);
 }
 
-/* scope 色板：system 橙 / global 紫 / local 绿 / worktree 青 / command 品红 */
+/* scope 色板 */
 .tag-scope-system {
-  color: #fbbf24;
+  color: #b45309;
   background: rgba(245, 158, 11, 0.12);
 }
 .tag-scope-global {
-  color: #a78bfa;
+  color: #7c3aed;
   background: rgba(139, 92, 246, 0.14);
 }
 .tag-scope-local {
-  color: #4ade80;
+  color: #15803d;
   background: rgba(34, 197, 94, 0.12);
 }
 .tag-scope-worktree {
-  color: #22d3ee;
+  color: #0e7490;
   background: rgba(6, 182, 212, 0.12);
 }
 .tag-scope-command {
-  color: #f472b6;
+  color: #be185d;
   background: rgba(244, 114, 182, 0.14);
 }
 .tag-scope-includeif {
-  color: #60a5fa;
+  color: #1d4ed8;
   background: rgba(59, 130, 246, 0.14);
 }
 
-/* key 高亮色（配置项 key / email 等） */
+:root[data-theme='light'] .tag-scope-system {
+  color: #d97706;
+}
+:root[data-theme='light'] .tag-scope-global {
+  color: #7c3aed;
+}
+:root[data-theme='light'] .tag-scope-local {
+  color: #16a34a;
+}
+:root[data-theme='light'] .tag-scope-worktree {
+  color: #0891b2;
+}
+:root[data-theme='light'] .tag-scope-command {
+  color: #db2777;
+}
+:root[data-theme='light'] .tag-scope-includeif {
+  color: #2563eb;
+}
+
+/* key 高亮色 */
 .tag-key {
-  color: #60a5fa;
+  color: #1d4ed8;
   background: rgba(59, 130, 246, 0.1);
 }
 .tag-company {
-  color: #22d3ee;
+  color: #0e7490;
   background: rgba(6, 182, 212, 0.12);
 }
 
@@ -525,16 +674,14 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 32px;
-  color: #93c5fd;
+  color: var(--primary);
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(6, 182, 212, 0.1));
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-soft);
 }
 
-/* ---------- Skeleton 容器 ---------- */
-.skeleton-block {
-  border-radius: 12px;
-  overflow: hidden;
+:root[data-theme='light'] .empty-brand .empty-icon {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(8, 145, 178, 0.08));
 }
 
 /* ---------- Folder Mapping 可视化 ---------- */
@@ -545,7 +692,7 @@ body {
   padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--hover-bg);
   transition:
     border-color 0.2s var(--ease),
     background-color 0.2s var(--ease);
@@ -553,7 +700,7 @@ body {
 
 .folder-map:hover {
   border-color: var(--border-strong);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--hover-bg-strong);
 }
 
 .folder-map .fm-dir {
@@ -577,7 +724,7 @@ body {
 .folder-map .fm-profile {
   font-size: 13px;
   font-weight: 600;
-  color: #93c5fd;
+  color: var(--primary);
   flex-shrink: 0;
 }
 

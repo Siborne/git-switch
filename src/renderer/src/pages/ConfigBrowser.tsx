@@ -15,6 +15,8 @@ import {
 import type { TableProps } from 'antd'
 import { RefreshCw, Eye, EyeOff } from 'lucide-react'
 import type { GitConfigEntry } from '../../../shared/types'
+import { describeKey } from '../lib/keyDocs'
+import { t } from '../lib/i18n'
 
 /** 敏感配置项匹配：命中则默认打码显示 */
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
@@ -87,14 +89,18 @@ export default function ConfigBrowserPage(): React.JSX.Element {
   const columns = useMemo<TableProps<GitConfigEntry>['columns']>(() => {
     return [
       {
-        title: '配置项',
+        title: t('配置项', 'Key'),
         dataIndex: 'key',
         key: 'key',
         width: 300,
-        render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+        render: (k: string) => {
+          const doc = describeKey(k)
+          const el = <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+          return doc ? <Tooltip title={doc}>{el}</Tooltip> : el
+        }
       },
       {
-        title: '值',
+        title: t('值', 'Value'),
         dataIndex: 'value',
         key: 'value',
         render: (v: string, r) => {
@@ -126,7 +132,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
         render: (s: string) => <Tag className={SCOPE_CLASS[s] ?? ''} style={{ marginRight: 0 }}>{s}</Tag>
       },
       {
-        title: '来源文件',
+        title: t('来源文件', 'Origin'),
         dataIndex: 'origin',
         key: 'origin',
         ellipsis: true,
@@ -143,7 +149,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
     <div className="page">
       <div className="page-title">
         <Typography.Title level={3} style={{ margin: 0 }}>
-          配置浏览器
+          {t('配置浏览器', 'Config Browser')}
         </Typography.Title>
         <Typography.Text type="secondary">Config browser</Typography.Text>
       </div>
@@ -162,7 +168,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
           ]}
         />
         <Button icon={<RefreshCw size={15} />} onClick={() => void load()}>
-          刷新
+          {t('刷新', 'Refresh')}
         </Button>
       </Space>
 

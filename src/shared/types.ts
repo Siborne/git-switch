@@ -67,6 +67,7 @@ export interface GitSwitchApi {
   logs: LogsApi
   onboarding: OnboardingApi
   include: IncludeApi
+  windowControls: WindowControlsApi
 }
 
 /* ---------- 备份 ---------- */
@@ -194,6 +195,17 @@ export interface OnboardingApi {
   status: () => Promise<boolean>
   /** 标记引导完成 */
   markDone: () => Promise<void>
+}
+
+export interface WindowControlsApi {
+  /** 最小化窗口 */
+  minimize: () => void
+  /** 最大化 / 还原 */
+  toggleMaximize: () => void
+  /** 关闭到系统托盘 */
+  hide: () => void
+  /** 监听最大化状态变化；返回取消订阅函数 */
+  onMaximizedChange: (cb: (maximized: boolean) => void) => () => void
 }
 
 /* ---------- includeIf 自动切换 ---------- */

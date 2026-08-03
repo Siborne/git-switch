@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Card, Col, Row, Space, Spin, Tag, Typography } from 'antd'
 import { GitBranch, IdCard, ArrowLeftRight, History, Layers, ShieldCheck, Boxes } from 'lucide-react'
 import type { ActualInclude, BackupMeta, IncludeRule, Profile } from '../../../shared/types'
+import { t } from '../lib/i18n'
 
 const STATUS_DOT = {
   ok: '#22c55e',
@@ -62,16 +63,16 @@ export default function DashboardPage(): React.JSX.Element {
   const stats = [
     {
       key: 'identity',
-      label: '当前全局身份',
+      label: t('当前全局身份', 'Global Identity'),
       icon: <ShieldCheck size={17} />,
       iconBg: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
       value: userName ? (userName.length > 12 ? `${userName.slice(0, 12)}…` : userName) : '未设置',
-      hint: userEmail ?? '点击配置集可创建身份',
+      hint: userEmail ?? t('点击配置集可创建身份', 'Create via Profiles'),
       dot: userName ? STATUS_DOT.ok : STATUS_DOT.none
     },
     {
       key: 'profiles',
-      label: '配置集',
+      label: t('配置集', 'Profiles'),
       icon: <IdCard size={17} />,
       iconBg: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
       value: String(profiles.length),
@@ -80,16 +81,16 @@ export default function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'include',
-      label: '自动切换',
+      label: t('自动切换', 'Auto Switch'),
       icon: <ArrowLeftRight size={17} />,
       iconBg: 'linear-gradient(135deg, #06b6d4, #22d3ee)',
       value: `${enabledRules}/${includeRules.length}`,
-      hint: `目录映射（${actual.length} 段已写入全局）`,
+      hint: t(`目录映射（${actual.length} 段已写入全局）`, `${actual.length} mapping(s) synced to global`),
       dot: enabledRules > 0 ? STATUS_DOT.ok : STATUS_DOT.off
     },
     {
       key: 'backups',
-      label: '备份点',
+      label: t('备份点', 'Backups'),
       icon: <History size={17} />,
       iconBg: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
       value: String(backups.length),
@@ -98,20 +99,20 @@ export default function DashboardPage(): React.JSX.Element {
     },
     {
       key: 'git',
-      label: 'Git 版本',
+      label: t('Git 版本', 'Git Version'),
       icon: <GitBranch size={17} />,
       iconBg: 'linear-gradient(135deg, #ef4444, #f97316)',
       value: fmtGitVersion(gitVersion),
-      hint: gitVersion ? 'Git for Windows' : '未检测到 git',
+      hint: gitVersion ? 'Git for Windows' : t('未检测到 git', 'git not found'),
       dot: gitVersion ? STATUS_DOT.ok : STATUS_DOT.off
     },
     {
       key: 'scope',
-      label: '配置层级',
+      label: t('配置层级', 'Config Scopes'),
       icon: <Layers size={17} />,
       iconBg: 'linear-gradient(135deg, #64748b, #94a3b8)',
       value: 'System / Global / Local',
-      hint: '低优先级 → 高优先级',
+      hint: t('低优先级 → 高优先级', 'low → high priority'),
       dot: STATUS_DOT.ok
     }
   ]
@@ -120,7 +121,7 @@ export default function DashboardPage(): React.JSX.Element {
     <div className="page">
       <div className="page-title" style={{ marginBottom: 20 }}>
         <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          概览
+          {t('概览', 'Overview')}
         </Typography.Title>
         <Typography.Text type="secondary">Overview</Typography.Text>
       </div>
@@ -160,7 +161,7 @@ export default function DashboardPage(): React.JSX.Element {
 
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
           <Col xs={24} lg={14}>
-            <Card className="glass" title="当前身份" styles={{ body: { padding: 24 } }}>
+            <Card className="glass" title={t('当前身份', 'Current Identity')} styles={{ body: { padding: 24 } }}>
               {userName || userEmail ? (
                 <Space direction="vertical" size={12} style={{ width: '100%' }}>
                   <Space size={12} align="center">
@@ -208,7 +209,7 @@ export default function DashboardPage(): React.JSX.Element {
             </Card>
           </Col>
           <Col xs={24} lg={10}>
-            <Card className="glass" title="环境" styles={{ body: { padding: 24 } }}>
+            <Card className="glass" title={t('环境', 'Environment')} styles={{ body: { padding: 24 } }}>
               <Space direction="vertical" size={10} style={{ width: '100%' }}>
                 {[
                   { label: 'Git', value: fmtGitVersion(gitVersion) || '未检测到' },

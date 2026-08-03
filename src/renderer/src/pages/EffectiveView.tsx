@@ -17,6 +17,8 @@ import {
 import type { TableProps } from 'antd'
 import { FolderGit2, RefreshCw } from 'lucide-react'
 import type { GitConfigEntry } from '../../../shared/types'
+import { describeKey } from '../lib/keyDocs'
+import { t } from '../lib/i18n'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
 
@@ -127,16 +129,20 @@ export default function EffectiveViewPage(): React.JSX.Element {
   const columns = useMemo<TableProps<KeyGroup>['columns']>(() => {
     return [
       {
-        title: '配置项',
+        title: t('配置项', 'Key'),
         dataIndex: 'key',
         key: 'key',
-        width: 280,
-        render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+        width: 220,
+        render: (k: string) => {
+          const doc = describeKey(k)
+          const el = <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+          return doc ? <Tooltip title={doc}>{el}</Tooltip> : el
+        }
       },
       {
-        title: '最终生效值',
+        title: t('最终生效值', 'Final Value'),
         key: 'final',
-        width: 300,
+        width: 260,
         render: (_, g) => (
           <Space size={6}>
             <Typography.Text strong style={{ fontFamily: "'JetBrains Mono', monospace", color: '#60a5fa' }}>
@@ -149,7 +155,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
         )
       },
       {
-        title: '覆盖链（低 → 高优先级）',
+        title: t('覆盖链（低 → 高优先级）', 'Override chain (low → high)'),
         key: 'chain',
         render: (_, g) => (
           <Space size={[4, 4]} wrap>
@@ -171,7 +177,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
       {contextHolder}
       <div className="page-title">
         <Typography.Title level={3} style={{ margin: 0 }}>
-          生效值
+          {t('生效值', 'Effective Values')}
         </Typography.Title>
         <Typography.Text type="secondary">Effective values</Typography.Text>
       </div>

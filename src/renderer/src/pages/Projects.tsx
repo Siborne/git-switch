@@ -21,6 +21,8 @@ import {
 import type { TableProps } from 'antd'
 import { Pencil, Trash2, FolderGit2, Plus, RefreshCw, GitBranch, Globe, GitCommitHorizontal } from 'lucide-react'
 import type { GitConfigEntry, LastCommitInfo, Profile } from '../../../shared/types'
+import { describeKey } from '../lib/keyDocs'
+import { t } from '../lib/i18n'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
 
@@ -166,14 +168,18 @@ export default function ProjectsPage(): React.JSX.Element {
 
   const localColumns: TableProps<GitConfigEntry>['columns'] = [
     {
-      title: '配置项',
+      title: t('配置项', 'Key'),
       dataIndex: 'key',
       key: 'key',
       width: 300,
-      render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+      render: (k: string) => {
+        const doc = describeKey(k)
+        const el = <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+        return doc ? <Tooltip title={doc}>{el}</Tooltip> : el
+      }
     },
     {
-      title: '值',
+      title: t('值', 'Value'),
       dataIndex: 'value',
       key: 'value',
       render: (v: string, r) => (
@@ -181,7 +187,7 @@ export default function ProjectsPage(): React.JSX.Element {
       )
     },
     {
-      title: '操作',
+      title: t('操作', 'Actions'),
       key: 'actions',
       width: 140,
       render: (_, entry) => (
@@ -199,14 +205,18 @@ export default function ProjectsPage(): React.JSX.Element {
 
   const allColumns: TableProps<GitConfigEntry>['columns'] = [
     {
-      title: '配置项',
+      title: t('配置项', 'Key'),
       dataIndex: 'key',
       key: 'key',
       width: 300,
-      render: (k: string) => <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+      render: (k: string) => {
+        const doc = describeKey(k)
+        const el = <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
+        return doc ? <Tooltip title={doc}>{el}</Tooltip> : el
+      }
     },
     {
-      title: '值',
+      title: t('值', 'Value'),
       dataIndex: 'value',
       key: 'value',
       render: (v: string, r) => (
@@ -214,14 +224,14 @@ export default function ProjectsPage(): React.JSX.Element {
       )
     },
     {
-      title: 'Scope',
+      title: t('Scope', 'Scope'),
       dataIndex: 'scope',
       key: 'scope',
       width: 96,
       render: (s: string) => <Tag className={SCOPE_CLASS[s] ?? ''} style={{ marginRight: 0 }}>{s}</Tag>
     },
     {
-      title: '来源文件',
+      title: t('来源文件', 'Origin'),
       dataIndex: 'origin',
       key: 'origin',
       ellipsis: true,
@@ -255,7 +265,7 @@ export default function ProjectsPage(): React.JSX.Element {
           浏览…
         </Button>
         <Button type="primary" onClick={() => void openRepo()}>
-          打开仓库
+          {t('打开仓库', 'Open Repo')}
         </Button>
         {opened && (
           <Button icon={<RefreshCw size={15} />} onClick={() => void reload()}>
@@ -312,7 +322,7 @@ export default function ProjectsPage(): React.JSX.Element {
             items={[
               {
                 key: 'local',
-                label: `本地配置（${localEntries.length}）`,
+                label: t('本地配置', 'Local Config'),
                 children: (
                   <>
                     <Space style={{ marginBottom: 8 }}>
@@ -346,7 +356,7 @@ export default function ProjectsPage(): React.JSX.Element {
               },
               {
                 key: 'all',
-                label: `生效配置（${allEntries.length}）`,
+                label: t('生效配置', 'Effective Config'),
                 children: (
                   <Spin spinning={loading}>
                     <Table<GitConfigEntry>

@@ -14,11 +14,14 @@ import {
   Skeleton,
   Space,
   Tag,
+  Tooltip,
   Typography,
   message
 } from 'antd'
 import { Download, GitBranch, Globe, Pencil, Plus, Trash2, Upload, FolderGit2 } from 'lucide-react'
 import type { Profile, ProfileInput } from '../../../shared/types'
+import { describeKey } from '../lib/keyDocs'
+import { t } from '../lib/i18n'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
 
@@ -225,19 +228,19 @@ export default function ProfilesPage(): React.JSX.Element {
       {contextHolder}
       <div className="page-title">
         <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          配置集
+          {t('配置集', 'Profiles')}
         </Typography.Title>
         <Typography.Text type="secondary">Profiles</Typography.Text>
         <div style={{ flex: 1 }} />
         <Dropdown menu={importExportMenu}>
-          <Button icon={<Upload size={15} />}>导入 / 导出</Button>
+          <Button icon={<Upload size={15} />}>{t('导入 / 导出', 'Import / Export')}</Button>
         </Dropdown>
         <Button type="primary" icon={<Plus size={15} />} onClick={openCreate}>
-          新建配置集
+          {t('新建配置集', 'New Profile')}
         </Button>
       </div>
       <Typography.Paragraph type="secondary" style={{ marginTop: 6, marginBottom: 20 }}>
-        管理多套 Git 身份与配置项，一键应用到全局或指定项目；应用前自动备份原配置，可随时回滚。
+        {t('管理多套 Git 身份与配置项，一键应用到全局或指定项目；应用前自动备份原配置，可随时回滚。', 'Manage multiple Git identities and config items — apply to global or a repo with one click; originals are auto-backed-up and restorable.')}
       </Typography.Paragraph>
 
       {loading ? (
@@ -257,13 +260,13 @@ export default function ProfilesPage(): React.JSX.Element {
               <GitBranch size={34} />
             </span>
             <Typography.Title level={4} style={{ margin: 0 }}>
-              创建你的第一个配置集
+              {t('创建你的第一个配置集', 'Create your first profile')}
             </Typography.Title>
             <Typography.Text type="secondary">
-              工作 / 个人 / 开源 —— 每套身份包含 user.name、user.email、签名密钥等配置项
+              {t('工作 / 个人 / 开源 —— 每套身份包含 user.name、user.email、签名密钥等配置项', 'Work / Personal / OSS — each profile holds user.name, user.email, signing key & more')}
             </Typography.Text>
             <Button type="primary" icon={<Plus size={15} />} onClick={openCreate} style={{ marginTop: 8 }}>
-              新建配置集
+              {t('新建配置集', 'New Profile')}
             </Button>
           </div>
         </Card>
@@ -305,11 +308,21 @@ export default function ProfilesPage(): React.JSX.Element {
                       （空配置集）
                     </Typography.Text>
                   ) : (
-                    p.items.map((it, idx) => (
-                      <Tag key={idx} className={keyTagClass(it.key)} style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace" }}>
-                        {it.key}={SENSITIVE_RE.test(it.key) ? maskValue(it.value) : it.value}
-                      </Tag>
-                    ))
+                    p.items.map((it, idx) => {
+                      const doc = describeKey(it.key)
+                      const tag = (
+                        <Tag key={idx} className={keyTagClass(it.key)} style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace" }}>
+                          {it.key}={SENSITIVE_RE.test(it.key) ? maskValue(it.value) : it.value}
+                        </Tag>
+                      )
+                      return doc ? (
+                        <Tooltip key={idx} title={doc}>
+                          {tag}
+                        </Tooltip>
+                      ) : (
+                        tag
+                      )
+                    })
                   )}
                 </div>
                 <div className="pc-footer">
@@ -320,10 +333,10 @@ export default function ProfilesPage(): React.JSX.Element {
                     icon={<Globe size={13} />}
                     onClick={() => void applyGlobal(p)}
                   >
-                    应用全局
+                    {t('应用全局', 'Apply Global')}
                   </Button>
                   <Button size="small" icon={<FolderGit2 size={13} />} onClick={() => openRepoApply(p)}>
-                    应用项目
+                    {t('应用项目', 'Apply Repo')}
                   </Button>
                   <div style={{ flex: 1 }} />
                   <Typography.Text type="secondary" style={{ fontSize: 11 }}>

@@ -128,3 +128,112 @@ export const antdThemeConfig: ThemeConfig = {
     }
   }
 }
+
+/** 浅色主题 */
+export const lightThemeConfig: ThemeConfig = {
+  algorithm: theme.defaultAlgorithm,
+  token: {
+    colorPrimary: '#2563EB',
+    colorInfo: '#2563EB',
+    colorSuccess: '#16A34A',
+    colorWarning: '#D97706',
+    colorError: '#DC2626',
+    colorLink: '#2563EB',
+    colorBgBase: '#F4F6FB',
+    colorBgLayout: '#F4F6FB',
+    colorBgContainer: '#FFFFFF',
+    colorBgElevated: '#FFFFFF',
+    colorFillAlter: 'rgba(15, 23, 42, 0.03)',
+    colorFillSecondary: 'rgba(15, 23, 42, 0.05)',
+    colorBorder: 'rgba(15, 23, 42, 0.1)',
+    colorBorderSecondary: 'rgba(15, 23, 42, 0.08)',
+    colorText: 'rgba(15, 23, 42, 0.88)',
+    colorTextSecondary: 'rgba(15, 23, 42, 0.62)',
+    colorTextTertiary: 'rgba(15, 23, 42, 0.42)',
+    borderRadius: 12,
+    borderRadiusLG: 20,
+    borderRadiusSM: 8,
+    borderRadiusXS: 6,
+    fontFamily: "'Inter', 'Segoe UI Variable', 'MiSans', 'HarmonyOS Sans', 'Microsoft YaHei', system-ui, sans-serif",
+    fontFamilyCode: "'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
+    boxShadow: '0 8px 30px rgba(15, 23, 42, 0.08)',
+    boxShadowSecondary: '0 12px 40px rgba(15, 23, 42, 0.12)',
+    controlHeight: 36,
+    controlHeightSM: 28,
+    controlHeightLG: 44,
+    motionDurationMid: '0.15s',
+    motionDurationSlow: '0.2s'
+  },
+  components: {
+    Layout: {
+      siderBg: '#FFFFFF',
+      bodyBg: '#F4F6FB',
+      headerBg: 'transparent',
+      headerHeight: 72,
+      headerPadding: '0 32px'
+    },
+    Menu: {
+      darkItemBg: 'transparent',
+      darkItemColor: 'rgba(15, 23, 42, 0.6)',
+      darkItemHoverBg: 'rgba(15, 23, 42, 0.04)',
+      darkItemHoverColor: 'rgba(15, 23, 42, 0.9)',
+      darkItemSelectedBg: 'rgba(37, 99, 235, 0.1)',
+      darkItemSelectedColor: '#1D4ED8',
+      itemBorderRadius: 10,
+      itemMarginInline: 12,
+      itemHeight: 40,
+      iconSize: 17
+    },
+    Card: {
+      colorBgContainer: '#FFFFFF',
+      borderRadiusLG: 18,
+      paddingLG: 24,
+      headerFontSize: 15
+    },
+    Table: {
+      colorBgContainer: 'transparent',
+      headerBg: 'rgba(15, 23, 42, 0.03)',
+      headerColor: 'rgba(15, 23, 42, 0.5)',
+      headerSplitColor: 'transparent',
+      rowHoverBg: 'rgba(37, 99, 235, 0.05)',
+      borderColor: 'rgba(15, 23, 42, 0.08)',
+      cellPaddingBlock: 12,
+      cellPaddingInline: 16
+    },
+    Button: {
+      borderRadius: 12,
+      fontWeight: 500,
+      primaryShadow: '0 4px 14px rgba(37, 99, 235, 0.25)'
+    },
+    Input: {
+      borderRadius: 12,
+      activeShadow: '0 0 0 3px rgba(37, 99, 235, 0.15)'
+    },
+    Select: {
+      borderRadius: 12
+    },
+    Modal: {
+      borderRadiusLG: 20
+    },
+    Tag: {
+      borderRadiusSM: 999
+    },
+    Tooltip: {
+      colorBgSpotlight: 'rgba(255, 255, 255, 0.97)'
+    },
+    Tabs: {
+      inkBarColor: '#2563EB',
+      itemSelectedColor: '#1D4ED8',
+      itemColor: 'rgba(15, 23, 42, 0.55)'
+    },
+    Steps: {
+      colorPrimary: '#2563EB'
+    },
+    Timeline: {
+      tailColor: 'rgba(15, 23, 42, 0.08)'
+    }
+  }
+}
+
+/** 深色主题（默认）别名 */
+export const darkThemeConfig: ThemeConfig = antdThemeConfig

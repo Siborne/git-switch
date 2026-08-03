@@ -18,6 +18,7 @@ import {
 } from 'antd'
 import { ArrowRight, GitBranch, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import type { ActualInclude, IncludeRule, Profile } from '../../../shared/types'
+import { t } from '../lib/i18n'
 
 export default function IncludeIfPage(): React.JSX.Element {
   const [rules, setRules] = useState<IncludeRule[]>([])
@@ -115,15 +116,15 @@ export default function IncludeIfPage(): React.JSX.Element {
       {contextHolder}
       <div className="page-title">
         <Typography.Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-          自动切换
+          {t('自动切换', 'Auto Switch')}
         </Typography.Title>
         <Typography.Text type="secondary">includeIf · Folder Mapping</Typography.Text>
         <div style={{ flex: 1 }} />
         <Button type="primary" icon={<Plus size={15} />} onClick={openCreate} disabled={profiles.length === 0}>
-          新建映射
+          {t('新建映射', 'New Mapping')}
         </Button>
         <Button type="primary" ghost icon={<RefreshCw size={15} />} loading={syncing} onClick={() => void sync()}>
-          同步到全局配置
+          {t('同步到全局配置', 'Sync to Global')}
         </Button>
       </div>
       <Typography.Paragraph type="secondary" style={{ marginTop: 6, marginBottom: 20 }}>
@@ -148,9 +149,11 @@ export default function IncludeIfPage(): React.JSX.Element {
                 <GitBranch size={34} />
               </span>
               <Typography.Title level={4} style={{ margin: 0 }}>
-                建立第一个目录映射
+                {t('建立第一个目录映射', 'Create the first folder mapping')}
               </Typography.Title>
-              <Typography.Text type="secondary">如 D:\work → 工作身份，D:\oss → 个人身份</Typography.Text>
+              <Typography.Text type="secondary">
+                {t('如 D:\work → 工作身份，D:\oss → 个人身份', 'e.g. D:\work → Work, D:\oss → Personal')}
+              </Typography.Text>
               <Button
                 type="primary"
                 icon={<Plus size={15} />}

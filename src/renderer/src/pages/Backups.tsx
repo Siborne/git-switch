@@ -3,6 +3,7 @@ import { Button, Card, Empty, Modal, Popconfirm, Space, Spin, Table, Tag, Timeli
 import { Undo2, FileSearch, GitCompare } from 'lucide-react'
 import type { TableProps } from 'antd'
 import type { BackupMeta, DiffFileResult, LogEntry } from '../../../shared/types'
+import { t } from '../lib/i18n'
 
 const ACTION_LABEL: Record<string, string> = {
   'profile-create': '创建配置集',
@@ -91,20 +92,20 @@ export default function BackupsPage(): React.JSX.Element {
 
   const columns: TableProps<BackupMeta>['columns'] = [
     {
-      title: '备份时间',
+      title: t('备份时间', 'Time'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 180,
       render: (v: string) => <Typography.Text>{fmtTime(v)}</Typography.Text>
     },
     {
-      title: '原因',
+      title: t('原因', 'Reason'),
       dataIndex: 'reason',
       key: 'reason',
       render: (v: string) => <Typography.Text>{v}</Typography.Text>
     },
     {
-      title: '文件',
+      title: t('文件', 'Files'),
       dataIndex: 'files',
       key: 'files',
       width: 300,
@@ -119,7 +120,7 @@ export default function BackupsPage(): React.JSX.Element {
       )
     },
     {
-      title: '操作',
+      title: t('操作', 'Actions'),
       key: 'actions',
       width: 210,
       render: (_, meta) => (
@@ -174,7 +175,7 @@ export default function BackupsPage(): React.JSX.Element {
       {contextHolder}
       <div className="page-title">
         <Typography.Title level={3} style={{ margin: 0 }}>
-          备份与回滚
+          {t('备份与回滚', 'Backups & Restore')}
         </Typography.Title>
         <Typography.Text type="secondary">Backups</Typography.Text>
       </div>
@@ -183,7 +184,7 @@ export default function BackupsPage(): React.JSX.Element {
       </Typography.Paragraph>
 
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
-        <Card className="glass" title="备份点" styles={{ body: { padding: 8 } }}>
+        <Card className="glass" title={t('备份点', 'Restore Points')} styles={{ body: { padding: 8 } }}>
           <Spin spinning={loading}>
             <Table<BackupMeta>
               rowKey="id"
@@ -196,7 +197,7 @@ export default function BackupsPage(): React.JSX.Element {
           </Spin>
         </Card>
 
-        <Card className="glass" title="操作日志" styles={{ body: { padding: '16px 24px' } }}>
+        <Card className="glass" title={t('操作日志', 'Activity Log')} styles={{ body: { padding: '16px 24px' } }}>
           <Spin spinning={loading}>
             {timelineItems.length > 0 ? (
               <Timeline items={timelineItems} style={{ maxHeight: 320, overflowY: 'auto' }} />

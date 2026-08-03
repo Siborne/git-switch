@@ -20,7 +20,8 @@ import type {
   Profile,
   ProfileInput,
   ProfilesApi,
-  SyncResult
+  SyncResult,
+  WindowControlsApi
 } from '../shared/types'
 
 const gitApi: GitApi = {
@@ -91,6 +92,19 @@ const includeApi: IncludeApi = {
   actual: (): Promise<ActualInclude[]> => ipcRenderer.invoke('include:actual') as Promise<ActualInclude[]>
 }
 
+const windowControls: WindowControlsApi = {
+  minimize: (): void => ipcRenderer.send('window:minimize'),
+  toggleMaximize: (): void => ipcRenderer.send('window:toggleMaximize'),
+  hide: (): void => ipcRenderer.send('window:hide'),
+  onMaximizedChange: (cb: (maximized: boolean) => void): (() => void) => {
+    const listener = (_e: unknown, maximized: boolean): void => cb(maximized)
+    ipcRenderer.on('window:maximized', listener)
+    return () => {
+      ipcRenderer.removeListener('window:maximized', listener)
+    }
+  }
+}
+
 const api = {
   appName: 'Git Switch',
   platform: process.platform,
@@ -105,7 +119,8 @@ const api = {
   dialog: dialogApi,
   logs: logsApi,
   onboarding: onboardingApi,
-  include: includeApi
+  include: includeApi,
+  windowControls
 }
 
 contextBridge.exposeInMainWorld('gitSwitch', api)

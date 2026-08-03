@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Form, Input, Modal, Space, Steps, Switch, Tag, Typography, message } from 'antd'
 import { CheckCircle2, Download, RefreshCw } from 'lucide-react'
+import { t } from '../lib/i18n'
 
 interface OnboardingForm {
   profileName: string
@@ -37,9 +38,17 @@ export default function OnboardingModal({ open, onClose }: Props): React.JSX.Ele
   useEffect(() => {
     if (open) {
       form.resetFields()
+      form.setFieldValue('profileName', '默认')
       setCurrent(0)
       setProfileId(null)
       void checkGit()
+      // 预填用户全局 git 身份
+      void window.gitSwitch.git.getConfig('user.name').then((n) => {
+        if (n?.trim()) form.setFieldValue('userName', n.trim())
+      })
+      void window.gitSwitch.git.getConfig('user.email').then((e) => {
+        if (e?.trim()) form.setFieldValue('userEmail', e.trim())
+      })
     }
   }, [open, form, checkGit])
 
@@ -53,7 +62,7 @@ export default function OnboardingModal({ open, onClose }: Props): React.JSX.Ele
       ]
       if (v.signingKey?.trim()) items.push({ key: 'user.signingkey', value: v.signingKey.trim() })
       if (v.gpgSign) items.push({ key: 'commit.gpgsign', value: 'true' })
-      const p = await window.gitSwitch.profiles.create({ name: v.profileName.trim(), items })
+      const p = await window.gitSwitch.profiles.create({ name: v.profileName.trim() || '默认', items })
       setProfileId(p.id)
       setCurrent(2)
     } catch (e) {
@@ -165,14 +174,14 @@ export default function OnboardingModal({ open, onClose }: Props): React.JSX.Ele
 
       {current === 1 && (
         <Form form={form} layout="vertical" initialValues={{ profileName: '', userName: '', userEmail: '', signingKey: '', gpgSign: false }}>
-          <Form.Item name="profileName" label="配置集名称" rules={[{ required: true, message: '请输入配置集名称' }]}>
-            <Input placeholder="如：我的身份" maxLength={40} />
+          <Form.Item name="profileName" label={t('配置集名称', 'Profile name')} rules={[{ required: true, message: t('请输入配置集名称', 'Profile name is required') }]}>
+            <Input placeholder={t('如：我的身份', 'e.g. My Identity')} maxLength={40} />
           </Form.Item>
-          <Form.Item name="userName" label="user.name（提交者姓名）" rules={[{ required: true, message: '请输入姓名' }]}>
-            <Input placeholder="如：Zhang San" maxLength={80} />
+          <Form.Item name="userName" label="user.name" rules={[{ required: true, message: t('请输入姓名', 'Name is required') }]}>
+            <Input placeholder="Zhang San" maxLength={80} />
           </Form.Item>
-          <Form.Item name="userEmail" label="user.email（提交者邮箱）" rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}>
-            <Input placeholder="如：zhangsan@example.com" maxLength={120} />
+          <Form.Item name="userEmail" label="user.email" rules={[{ required: true, message: t('请输入邮箱', 'Email is required') }, { type: 'email', message: t('邮箱格式不正确', 'Invalid email format') }]}>
+            <Input placeholder="zhangsan@example.com" maxLength={120} />
           </Form.Item>
           <Form.Item name="signingKey" label="user.signingkey（签名密钥，可选）">
             <Input placeholder="GPG 密钥指纹，可稍后在配置集中补充" maxLength={200} />

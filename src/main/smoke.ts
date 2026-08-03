@@ -92,9 +92,9 @@ export async function runSmoke(): Promise<void> {
     await restoreBackup(backups[0].id)
     console.log('[smoke] ok - diff 链路验证通过')
 
-    // 6.6 lastCommit 链路
+    // 6.6 lastCommit 链路（-c commit.gpgsign=false 避免受用户全局签名配置影响）
     await runGit(
-      ['-c', 'user.name=Smoke', '-c', 'user.email=smoke@test.dev', 'commit', '--allow-empty', '-m', 'smoke commit'],
+      ['-c', 'user.name=Smoke', '-c', 'user.email=smoke@test.dev', '-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '-m', 'smoke commit'],
       { cwd: repo }
     )
     const lc = await getLastCommit(repo)
