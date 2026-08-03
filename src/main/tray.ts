@@ -2,9 +2,9 @@ import { app, BrowserWindow, Menu, Tray, nativeImage } from 'electron'
 import { listProfiles, applyProfileToGlobal } from './profiles'
 import { getConfig } from './git'
 
-/** 16x16 品牌托盘图标（透明底：青蓝渐变菱形 + 切换箭头，base64 内嵌避免资源路径问题） */
+/** 16x16 品牌托盘图标（青蓝渐变底 + 白色双向箭头 + 中央菱形，base64 内嵌避免资源路径问题） */
 const TRAY_ICON_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABeElEQVR4nGNgoCmo/08ExmRrhgFSDbGv/88CouOWvPWMXfrWC1mMsOb9EIUxy147GU37+NNw6sdf8ctfOyPLIQMmdJsPOjL+SVn72un6N/ZN3///Yf3O8Jv58jf29QlrXzuB5NBdwojiz0bGf3FrnjseeM22+eMfZm5J1u8P2ZkZ2F8yiUjw/v30z1z4l+uSYMl9MLUIA+ohAmGbX3mdec28JlWLjUNLiJnhw49/T+5++H1YhpeF9cwbBskDz/8Za/P9DF0fILYVpocF2Tn/GRkY/7D8Y/zP+v//f5b/jP9Z/jP8Y2X4/4/l3/8/zP//g+UYkVyNzQsRWx877X7DDPIClyzLj4eszIxsL1iEJHn/fP5nLvDLfZ2P/B5kL6AA+/r9YBdF7nirLTm+VeJZY/+iS99+Fdx7fPP4bueOCOrwQnsoVHlv+2Bs9SaR7+k1jz67bf9oQuyHEFgvx9ii8vex15uOx74IIsRDyhJynDw/z8TGNMSAACiM7wmzDfE2gAAAABJRU5ErkJggg=='
+  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB70lEQVR4nI2TsWoVURCG/5lz9iY3NxFBFG6RQlKk8BEs9AECwcLSVrALpBCfwMZASrEUSwsDPoAPYGshaKEpbqGBEA2b7J6ZX+asFyIGvbPNnj0z387/zzkCAHefnmxD0g6hU9CVpOKSEBGHqAt8Btr+uydXDuTOs59bxfxFwWhKL5GGfwchmpHRzXLSh7lX2+2kmXppCf1f8Tx6WF6aUvrd3Iut93Qie21yMQBpOKcI13PJDnMVBORC+4Ei/36fywhDijqyJUeJOjokHgEC1XsoGqpip0lSFQaIAwAagFI7GACk4LR3rI4UN8aKs7RSAcvW4nvrOO4cq41CAiyC2oGrwwQQOnoHHt9ew/3NMa4uJTx/9QYk8ejBPRyfG15/PMPe+xM0ClAESX5LsNrXIIWJVcZgp9d252tGbvZhTwATQm6+/Pqpo2wgMBQ57Ym1RnF9RdHquCaOrcW31vGjc0ya8Cn+mGQk/JwtGywOHusYMWnCQMOXtiDhvHpgYaIKJithcBg7eGAhocQU6rcBUMemQB7SamSwirE/xwgNgCfCaLwIWOAgRSpdgOzZD03yBkth+LRgOSRncZbD7A32kneb3XKe0ha8TClj5N3MVfdq9rW3H7ZdZcdSnsJNxf3S68w4epo8WZmpc/9o69bBL3fBCtk4s9HuAAAAAElFTkSuQmCC'
 
 let tray: Tray | null = null
 
