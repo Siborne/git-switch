@@ -1,12 +1,4 @@
-export interface GitSwitchApi {
-  appName: string
-  platform: string
-  versions: {
-    electron: string
-    node: string
-    chrome: string
-  }
-}
+import type { GitSwitchApi } from '../shared/types'
 
 declare global {
   interface Window {
