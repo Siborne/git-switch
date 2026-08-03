@@ -2,7 +2,7 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { existsSync } from 'fs'
 import { join } from 'path'
-import type { GitConfigEntry, GitOptions, GitScope } from '../shared/types'
+import type { GitConfigEntry, GitOptions, GitScope, LastCommitInfo } from '../shared/types'
 
 const execFileAsync = promisify(execFile)
 
@@ -181,13 +181,6 @@ export async function getCurrentBranch(cwd: string): Promise<string | null> {
   } catch {
     return null
   }
-}
-
-export interface LastCommitInfo {
-  hash: string
-  author: string
-  subject: string
-  date: string
 }
 
 /** 仓库最近一次提交信息；无提交返回 null */

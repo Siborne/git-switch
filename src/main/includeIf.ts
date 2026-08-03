@@ -1,55 +1,15 @@
 import { randomUUID } from 'crypto'
 import { join } from 'path'
-import { appendLog, readJson, writeJson } from './store'
+import { appendLog } from './logger'
+import { readJson, writeJson } from './storage'
 import { listConfig, setConfig, setConfigFile, unsetConfig, unsetConfigFile, runGit, GitError } from './git'
 import { getProfile } from './profiles'
 import { existsSync, promises as fs } from 'fs'
 import { createBackup } from './backup'
-
-export interface IncludeRule {
-  id: string
-  profileId: string
-  /** 规范化后的目录（正斜杠），如 D:/work */
-  path: string
-  enabled: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface SyncResult {
-  /** 实际写入的规则（enabled 且已同步） */
-  applied: string[]
-  /** 冲突提示：多个启用规则指向同一目录 */
-  conflicts: string[]
-}
+import { globalConfigFile, gitEnv, profileConfigDir, profileConfigFile } from './appConfig'
+import type { ActualInclude, IncludeRule, SyncResult } from '../shared/types'
 
 const RULES_FILE = 'includes.json'
-
-/**
- * 测试隔离：GS_TEST_GLOBAL_CONFIG 重定向全局配置、GS_TEST_PROFILE_DIR
- * 重定向配置集独立文件目录，冒烟测试据此完全不触碰真实用户配置。
- */
-function testGlobalConfig(): string | undefined {
-  return process.env.GS_TEST_GLOBAL_CONFIG
-}
-
-function testProfileDir(): string {
-  return process.env.GS_TEST_PROFILE_DIR ?? process.env.USERPROFILE ?? ''
-}
-
-function gitEnv(): Record<string, string> | undefined {
-  const g = testGlobalConfig()
-  return g ? { GIT_CONFIG_GLOBAL: g } : undefined
-}
-
-function globalConfigFile(): string {
-  return testGlobalConfig() ?? join(process.env.USERPROFILE ?? '', '.gitconfig')
-}
-
-/** 配置集独立配置文件：~/.gitconfig-<profileId> */
-function profileConfigFile(profileId: string): string {
-  return join(testProfileDir(), `.gitconfig-${profileId}`)
-}
 
 async function readRules(): Promise<IncludeRule[]> {
   return readJson<IncludeRule[]>(RULES_FILE, [])
@@ -205,11 +165,11 @@ export async function syncIncludeRules(): Promise<SyncResult> {
   }
 
   // 4. 清理不再被引用的配置文件
-  const allFiles = await fs.readdir(testProfileDir()).catch(() => [] as string[])
+  const allFiles = await fs.readdir(profileConfigDir()).catch(() => [] as string[])
   for (const f of allFiles) {
     const m = /^\.gitconfig-([0-9a-f-]+)$/i.exec(f)
     if (m && !referencedProfiles.has(m[1])) {
-      await fs.unlink(join(testProfileDir(), f)).catch(() => undefined)
+      await fs.unlink(join(profileConfigDir(), f)).catch(() => undefined)
     }
   }
 
@@ -233,9 +193,9 @@ async function unsetConfigFileAll(file: string): Promise<void> {
 }
 
 /** 从全局配置读取实际的 includeIf 段（用于展示同步状态） */
-export async function readActualIncludes(): Promise<{ key: string; dir: string; file: string }[]> {
+export async function readActualIncludes(): Promise<ActualInclude[]> {
   const entries = await listConfig({ env: gitEnv() })
-  const out: { key: string; dir: string; file: string }[] = []
+  const out: ActualInclude[] = []
   for (const e of entries) {
     if (e.key.startsWith('includeif.') && e.key.endsWith('.path')) {
       const dir = e.key.replace(/^includeif\./, '').replace(/\.path$/, '')

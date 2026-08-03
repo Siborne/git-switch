@@ -1,29 +1,11 @@
 import { randomUUID } from 'crypto'
 import { join } from 'path'
-import { appendLog, readJson, writeJson } from './store'
+import { appendLog } from './logger'
+import { readJson, writeJson } from './storage'
 import { createBackup } from './backup'
 import { setConfig, unsetConfig, runGit } from './git'
-import type { GitScope } from '../shared/types'
-
-export interface ProfileItem {
-  key: string
-  value: string
-}
-
-export interface Profile {
-  id: string
-  name: string
-  description?: string
-  items: ProfileItem[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ProfileInput {
-  name: string
-  description?: string
-  items: ProfileItem[]
-}
+import { globalConfigFile } from './appConfig'
+import type { ExportPayload, GitScope, ImportResult, Profile, ProfileInput, ProfileItem } from '../shared/types'
 
 const PROFILE_FILE = 'profiles.json'
 
@@ -104,11 +86,6 @@ export async function deleteProfile(id: string): Promise<void> {
   await appendLog('profile-delete', { name: target.name })
 }
 
-/** 全局配置文件路径（%USERPROFILE%\.gitconfig） */
-function globalConfigFile(): string {
-  return join(process.env.USERPROFILE ?? '', '.gitconfig')
-}
-
 /**
  * 应用配置集到全局：覆盖同名项 + 保留无关项。
  * 写前自动备份全局配置文件。
@@ -154,28 +131,8 @@ export async function removeScopeItem(key: string, scope: GitScope, cwd?: string
   await unsetConfig(key, scope, cwd ? { cwd } : undefined)
 }
 
-/* ---------- 导入 / 导出 ---------- */
-
 /** 敏感配置项匹配（导出脱敏用） */
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
-
-export interface ExportedProfile {
-  name: string
-  description?: string
-  items: ProfileItem[]
-}
-
-export interface ExportPayload {
-  version: 1
-  app: 'git-switch'
-  exportedAt: string
-  profiles: ExportedProfile[]
-}
-
-export interface ImportResult {
-  created: string[]
-  skipped: string[]
-}
 
 /** 导出全部配置集；includeSecrets=false 时敏感项（token/proxy 等）脱敏打码 */
 export async function exportProfiles(includeSecrets: boolean): Promise<ExportPayload> {

@@ -1,20 +1,9 @@
 import { promises as fs } from 'fs'
 import { join, basename } from 'path'
 import { diffLines } from 'diff'
-import { appendLog, dataDir, readJson, writeJson } from './store'
-
-export interface BackupMeta {
-  /** 备份点 id（时间戳） */
-  id: string
-  /** ISO 时间 */
-  createdAt: string
-  /** 触发备份的操作说明 */
-  reason: string
-  /** 被备份的原始文件路径（与备份文件按索引对应） */
-  files: string[]
-  /** 备份文件所在目录 */
-  backupDir: string
-}
+import { appendLog } from './logger'
+import { dataDir, readJson, writeJson } from './storage'
+import type { BackupMeta, DiffFileResult, DiffLine } from '../shared/types'
 
 const META_FILE = 'backups.json'
 
@@ -110,19 +99,6 @@ export async function readBackupContent(id: string): Promise<{ file: string; con
   return out
 }
 
-export interface DiffFileResult {
-  file: string
-  /** 备份点版本是否存在 */
-  hasBackup: boolean
-  /** 当前版本是否存在 */
-  hasCurrent: boolean
-  /** diff 行（前缀 + / - / 空格），行级对比 */
-  diff: { type: 'add' | 'remove' | 'same'; text: string }[]
-  /** 统计：新增/删除行数 */
-  added: number
-  removed: number
-}
-
 /** 对比备份点文件与当前文件的差异（备份 = 旧版本，当前 = 新版本） */
 export async function diffBackup(id: string): Promise<DiffFileResult[]> {
   const meta = (await readMeta()).find((m) => m.id === id)
@@ -146,7 +122,7 @@ export async function diffBackup(id: string): Promise<DiffFileResult[]> {
       // 当前文件不存在（已被删除）
     }
 
-    let diff: { type: 'add' | 'remove' | 'same'; text: string }[] = []
+    let diff: DiffLine[] = []
     let added = 0
     let removed = 0
     if (backupText !== null || currentText !== null) {

@@ -8,7 +8,7 @@
 import { promises as fs } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { setDataDir } from './store'
+import { setDataDir } from './storage'
 import { applyProfileToRepo, createProfile, deleteProfile, listProfiles } from './profiles'
 import { listBackups, restoreBackup, diffBackup } from './backup'
 import { runGit, setConfig, getLastCommit } from './git'
