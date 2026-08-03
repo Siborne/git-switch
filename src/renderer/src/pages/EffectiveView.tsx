@@ -142,7 +142,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
       {
         title: t('最终生效值', 'Final Value'),
         key: 'final',
-        width: 260,
+        width: 420,
         render: (_, g) => (
           <Space size={6}>
             <Typography.Text strong style={{ fontFamily: "'JetBrains Mono', monospace", color: '#60a5fa' }}>
