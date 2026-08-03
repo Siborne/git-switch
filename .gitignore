@@ -1,2 +1,22 @@
 # Reasonix 本地元数据
 .reasonix/
+reasonix.toml
+
+# 依赖
+node_modules/
+
+# 构建产物
+out/
+dist/
+*.tsbuildinfo
+
+# 日志
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 本地数据（应用运行期产生）
+%APPDATA%/git-switch/
