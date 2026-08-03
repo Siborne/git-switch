@@ -19,7 +19,7 @@ import {
   message
 } from 'antd'
 import type { TableProps } from 'antd'
-import { Pencil, Trash2, FolderGit2, Plus, RefreshCw } from 'lucide-react'
+import { Pencil, Trash2, FolderGit2, Plus, RefreshCw, GitBranch, Globe } from 'lucide-react'
 import type { GitConfigEntry, Profile } from '../../../shared/types'
 
 const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
@@ -44,6 +44,8 @@ const SCOPE_CLASS: Record<string, string> = {
 export default function ProjectsPage(): React.JSX.Element {
   const [repoPath, setRepoPath] = useState('')
   const [opened, setOpened] = useState(false)
+  const [remoteUrl, setRemoteUrl] = useState<string | null>(null)
+  const [branch, setBranch] = useState<string | null>(null)
   const [localEntries, setLocalEntries] = useState<GitConfigEntry[]>([])
   const [allEntries, setAllEntries] = useState<GitConfigEntry[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
@@ -57,9 +59,15 @@ export default function ProjectsPage(): React.JSX.Element {
   const [messageApi, contextHolder] = message.useMessage()
 
   const loadRepo = useCallback(async (path: string): Promise<void> => {
-    const all = await window.gitSwitch.git.listConfig({ cwd: path })
+    const [all, url, br] = await Promise.all([
+      window.gitSwitch.git.listConfig({ cwd: path }),
+      window.gitSwitch.git.remoteUrl(path),
+      window.gitSwitch.git.currentBranch(path)
+    ])
     setAllEntries(all)
     setLocalEntries(all.filter((e) => e.scope === 'local'))
+    setRemoteUrl(url)
+    setBranch(br)
   }, [])
 
   const openRepo = async (): Promise<void> => {
@@ -257,6 +265,30 @@ export default function ProjectsPage(): React.JSX.Element {
 
       {opened && (
         <Card className="glass" styles={{ body: { padding: 8 } }}>
+          <Space size={12} style={{ marginBottom: 10, padding: '6px 8px 0' }} wrap>
+            <Space size={6}>
+              <GitBranch size={14} color="#22d3ee" />
+              <Tag color="cyan" style={{ marginRight: 0 }}>
+                {branch ?? 'detached HEAD'}
+              </Tag>
+            </Space>
+            {remoteUrl ? (
+              <Space size={6} style={{ minWidth: 0 }}>
+                <Globe size={14} color="rgba(255,255,255,0.4)" />
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}
+                  ellipsis={{ tooltip: remoteUrl }}
+                >
+                  {remoteUrl}
+                </Typography.Text>
+              </Space>
+            ) : (
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                未配置 remote origin
+              </Typography.Text>
+            )}
+          </Space>
           <Tabs
             activeKey={tab}
             onChange={setTab}

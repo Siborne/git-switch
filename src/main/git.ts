@@ -163,6 +163,26 @@ export async function gitVersion(): Promise<string> {
   return out.trim()
 }
 
+/** 仓库 remote origin URL；未配置返回 null */
+export async function getRemoteUrl(cwd: string): Promise<string | null> {
+  try {
+    const out = await runGit(['remote', 'get-url', 'origin'], { cwd })
+    return out.trim() || null
+  } catch {
+    return null
+  }
+}
+
+/** 仓库当前分支名；detached HEAD 返回 null */
+export async function getCurrentBranch(cwd: string): Promise<string | null> {
+  try {
+    const out = await runGit(['branch', '--show-current'], { cwd })
+    return out.trim() || null
+  } catch {
+    return null
+  }
+}
+
 function assertScope(scope: GitScope): void {
   if (!VALID_SCOPES.includes(scope)) {
     throw new GitError(`非法的 scope: ${scope}`, [], null, '')

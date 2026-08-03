@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Layout, Menu } from 'antd'
+import { Button, Layout, Menu } from 'antd'
 import {
   GitBranch,
   IdCard,
@@ -8,7 +8,8 @@ import {
   ArrowLeftRight,
   SlidersHorizontal,
   History,
-  LayoutDashboard
+  LayoutDashboard,
+  ExternalLink
 } from 'lucide-react'
 import ProfilesPage from './pages/Profiles'
 import ProjectsPage from './pages/Projects'
@@ -107,6 +108,11 @@ export default function App(): React.JSX.Element {
           <div>
             <div className="h-title">{pageTitle[active]}</div>
             <div className="h-sub">Git Identity &amp; Profile Manager for Developers</div>
+          </div>
+          <div className="h-actions">
+            <Button href="https://github.com/Siborne/git-switch" target="_blank" icon={<ExternalLink size={15} />}>
+              GitHub
+            </Button>
           </div>
         </div>
         {pages[active]}

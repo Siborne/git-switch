@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Empty, Popconfirm, Space, Spin, Table, Tag, Timeline, Typography, message } from 'antd'
-import { Undo2 } from 'lucide-react'
+import { Button, Card, Empty, Modal, Popconfirm, Space, Spin, Table, Tag, Timeline, Typography, message } from 'antd'
+import { Undo2, FileSearch } from 'lucide-react'
 import type { TableProps } from 'antd'
 import type { BackupMeta, LogEntry } from '../../../shared/types'
 
@@ -31,6 +31,8 @@ export default function BackupsPage(): React.JSX.Element {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [restoring, setRestoring] = useState<string | null>(null)
+  const [viewFiles, setViewFiles] = useState<{ file: string; content: string }[] | null>(null)
+  const [viewing, setViewing] = useState(false)
   const [messageApi, contextHolder] = message.useMessage()
 
   const load = useCallback(async (): Promise<void> => {
@@ -58,6 +60,16 @@ export default function BackupsPage(): React.JSX.Element {
       messageApi.error(e instanceof Error ? e.message : String(e))
     } finally {
       setRestoring(null)
+    }
+  }
+
+  const viewContent = async (meta: BackupMeta): Promise<void> => {
+    try {
+      const files = await window.gitSwitch.backup.content(meta.id)
+      setViewFiles(files)
+      setViewing(true)
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
     }
   }
 
@@ -93,18 +105,23 @@ export default function BackupsPage(): React.JSX.Element {
     {
       title: '操作',
       key: 'actions',
-      width: 100,
+      width: 160,
       render: (_, meta) => (
-        <Popconfirm
-          title="回滚到此备份点？"
-          description="当前配置会先自动备份，确保可再次回滚。"
-          okText="回滚"
-          onConfirm={() => void restore(meta)}
-        >
-          <Button size="small" icon={<Undo2 size={13} />} loading={restoring === meta.id}>
-            回滚
+        <Space size={4}>
+          <Button size="small" icon={<FileSearch size={13} />} onClick={() => void viewContent(meta)}>
+            查看
           </Button>
-        </Popconfirm>
+          <Popconfirm
+            title="回滚到此备份点？"
+            description="当前配置会先自动备份，确保可再次回滚。"
+            okText="回滚"
+            onConfirm={() => void restore(meta)}
+          >
+            <Button size="small" icon={<Undo2 size={13} />} loading={restoring === meta.id}>
+              回滚
+            </Button>
+          </Popconfirm>
+        </Space>
       )
     }
   ]
@@ -170,6 +187,43 @@ export default function BackupsPage(): React.JSX.Element {
           </Spin>
         </Card>
       </Space>
+
+      {/* 查看备份内容 */}
+      <Modal
+        title="备份内容"
+        open={viewing}
+        onCancel={() => setViewing(false)}
+        footer={null}
+        width={720}
+        destroyOnHidden
+      >
+        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          {(viewFiles ?? []).length === 0 && <Typography.Text type="secondary">该备份点没有可读取的文件内容</Typography.Text>}
+          {(viewFiles ?? []).map((f, i) => (
+            <div key={i}>
+              <Typography.Text type="secondary" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
+                {f.file}
+              </Typography.Text>
+              <pre
+                style={{
+                  margin: '6px 0 0',
+                  padding: 12,
+                  borderRadius: 10,
+                  background: 'rgba(11, 18, 32, 0.6)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 12,
+                  maxHeight: 260,
+                  overflow: 'auto',
+                  color: 'rgba(255,255,255,0.78)'
+                }}
+              >
+                {f.content}
+              </pre>
+            </div>
+          ))}
+        </Space>
+      </Modal>
     </div>
   )
 }

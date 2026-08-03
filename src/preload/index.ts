@@ -31,13 +31,17 @@ const gitApi: GitApi = {
     ipcRenderer.invoke('git:setConfig', key, value, scope, opts),
   unsetConfig: (key: string, scope?: GitScope, opts?: GitOptions): Promise<void> =>
     ipcRenderer.invoke('git:unsetConfig', key, scope, opts),
-  isRepo: (dir: string): Promise<boolean> => ipcRenderer.invoke('git:isRepo', dir)
+  isRepo: (dir: string): Promise<boolean> => ipcRenderer.invoke('git:isRepo', dir),
+  remoteUrl: (dir: string): Promise<string | null> => ipcRenderer.invoke('git:remoteUrl', dir) as Promise<string | null>,
+  currentBranch: (dir: string): Promise<string | null> => ipcRenderer.invoke('git:currentBranch', dir) as Promise<string | null>
 }
 
 const backupApi: BackupApi = {
   list: (): Promise<BackupMeta[]> => ipcRenderer.invoke('backup:list') as Promise<BackupMeta[]>,
   restore: (id: string): Promise<{ restored: string[]; protection: BackupMeta | null }> =>
-    ipcRenderer.invoke('backup:restore', id) as Promise<{ restored: string[]; protection: BackupMeta | null }>
+    ipcRenderer.invoke('backup:restore', id) as Promise<{ restored: string[]; protection: BackupMeta | null }>,
+  content: (id: string): Promise<{ file: string; content: string }[]> =>
+    ipcRenderer.invoke('backup:content', id) as Promise<{ file: string; content: string }[]>
 }
 
 const profilesApi: ProfilesApi = {

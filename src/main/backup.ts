@@ -91,3 +91,20 @@ export async function restoreBackup(id: string): Promise<{ restored: string[]; p
   await appendLog('restore', { backupId: id, restored })
   return { restored, protection }
 }
+
+/** 读取备份点的文件内容（用于查看 Diff/内容）；不存在的备份文件跳过 */
+export async function readBackupContent(id: string): Promise<{ file: string; content: string }[]> {
+  const meta = (await readMeta()).find((m) => m.id === id)
+  if (!meta) throw new Error(`备份点不存在: ${id}`)
+  const out: { file: string; content: string }[] = []
+  for (let i = 0; i < meta.files.length; i++) {
+    const src = join(meta.backupDir, `${i}_${basename(meta.files[i])}`)
+    try {
+      const content = await fs.readFile(src, 'utf-8')
+      out.push({ file: meta.files[i], content })
+    } catch {
+      // 备份文件缺失，跳过
+    }
+  }
+  return out
+}

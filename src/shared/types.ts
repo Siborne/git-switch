@@ -37,6 +37,10 @@ export interface GitApi {
   unsetConfig: (key: string, scope?: GitScope, opts?: GitOptions) => Promise<void>
   /** 判断目录是否为 git 仓库 */
   isRepo: (dir: string) => Promise<boolean>
+  /** 仓库 remote origin URL；未配置返回 null */
+  remoteUrl: (dir: string) => Promise<string | null>
+  /** 仓库当前分支名；detached HEAD 返回 null */
+  currentBranch: (dir: string) => Promise<string | null>
 }
 
 export interface GitSwitchApi {
@@ -76,6 +80,8 @@ export interface BackupApi {
   list: () => Promise<BackupMeta[]>
   /** 回滚到指定备份点（回滚前自动保护当前状态） */
   restore: (id: string) => Promise<{ restored: string[]; protection: BackupMeta | null }>
+  /** 读取备份点文件内容（查看用） */
+  content: (id: string) => Promise<{ file: string; content: string }[]>
 }
 
 /* ---------- 配置集 ---------- */

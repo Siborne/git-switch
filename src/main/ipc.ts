@@ -3,6 +3,8 @@ import { promises as fs } from 'fs'
 import {
   findGit,
   getConfig,
+  getCurrentBranch,
+  getRemoteUrl,
   gitVersion,
   isGitRepo,
   listConfig,
@@ -10,7 +12,7 @@ import {
   unsetConfig
 } from './git'
 import type { GitOptions, GitScope } from '../shared/types'
-import { createBackup, listBackups, restoreBackup } from './backup'
+import { createBackup, listBackups, readBackupContent, restoreBackup } from './backup'
 import {
   applyProfileToGlobal,
   applyProfileToRepo,
@@ -48,10 +50,13 @@ export function registerIpcHandlers(): void {
     unsetConfig(key, scope, opts)
   )
   ipcMain.handle('git:isRepo', (_event, dir: string) => isGitRepo(dir))
+  ipcMain.handle('git:remoteUrl', (_event, dir: string) => getRemoteUrl(dir))
+  ipcMain.handle('git:currentBranch', (_event, dir: string) => getCurrentBranch(dir))
 
   /* ---------- backup ---------- */
   ipcMain.handle('backup:list', () => listBackups())
   ipcMain.handle('backup:restore', (_event, id: string) => restoreBackup(id))
+  ipcMain.handle('backup:content', (_event, id: string) => readBackupContent(id))
 
   /* ---------- profiles ---------- */
   ipcMain.handle('profiles:list', () => listProfiles())
