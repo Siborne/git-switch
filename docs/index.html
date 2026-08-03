@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Git Switch — 本地 Git 配置切换工具</title>
+  <meta name="description" content="Git Switch：Windows 桌面工具，多套 Git 身份一键切换、按目录自动切换（includeIf）、配置浏览器、备份回滚。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2338bdf8'/%3E%3Cstop offset='1' stop-color='%236366f1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 22 L24 10 M8 10 L24 22' stroke='white' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0B1220;
+      --bg-soft: #101a2e;
+      --card: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.09);
+      --text: #e5ecf6;
+      --text-dim: #93a3bd;
+      --accent: #6366f1;
+      --accent-2: #38bdf8;
+      --grad: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+      --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- 导航 ---------- */
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(14px);
+      background: rgba(11, 18, 32, 0.72);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); }
+    .brand:hover { text-decoration: none; }
+    .brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--grad); display: inline-flex; align-items: center; justify-content: center; }
+    .brand .logo svg { width: 16px; height: 16px; }
+    .nav-links { display: flex; align-items: center; gap: 22px; font-size: 14px; color: var(--text-dim); }
+    .nav-links a { color: var(--text-dim); }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ---------- 按钮 ---------- */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 15px;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      border: 1px solid transparent; cursor: pointer;
+    }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); }
+    .btn-primary { background: var(--grad); color: #fff; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35); }
+    .btn-primary:hover { box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5); }
+    .btn-ghost { background: transparent; color: var(--text); border-color: var(--card-border); }
+    .btn-ghost:hover { border-color: var(--accent-2); color: var(--accent-2); }
+    .btn-sm { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 96px 0 72px; text-align: center; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px; font-size: 13px;
+      background: rgba(99, 102, 241, 0.12); color: var(--accent-2);
+      border: 1px solid rgba(99, 102, 241, 0.3); margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 56px); font-weight: 800; letter-spacing: -1px; line-height: 1.15;
+      background: linear-gradient(135deg, #e0f2fe 0%, #a5b4fc 50%, #818cf8 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero .sub { margin: 20px auto 36px; max-width: 640px; color: var(--text-dim); font-size: 18px; }
+    .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-meta { margin-top: 30px; font-size: 13px; color: var(--text-dim); }
+    .hero-meta span { margin: 0 10px; }
+    .hero-meta b { color: var(--text); }
+
+    /* ---------- 特性 ---------- */
+    section { padding: 72px 0; }
+    .sec-title { text-align: center; font-size: clamp(26px, 4vw, 34px); font-weight: 800; margin-bottom: 12px; }
+    .sec-sub { text-align: center; color: var(--text-dim); max-width: 600px; margin: 0 auto 44px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card {
+      background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 26px 24px; transition: border-color .2s ease, transform .2s ease, background .2s ease;
+    }
+    .card:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-3px); background: rgba(255, 255, 255, 0.07); }
+    .card .icon {
+      width: 44px; height: 44px; border-radius: 12px; background: var(--grad);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+    }
+    .card .icon svg { width: 22px; height: 22px; stroke: #fff; }
+    .card h3 { font-size: 17px; margin-bottom: 8px; }
+    .card p { color: var(--text-dim); font-size: 14px; }
+
+    /* ---------- 场景 ---------- */
+    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .scenario {
+      background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 28px 26px;
+    }
+    .scenario h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; margin-bottom: 12px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.work { background: #38bdf8; }
+    .dot.personal { background: #a78bfa; }
+    .dot.oss { background: #34d399; }
+    .scenario p { color: var(--text-dim); font-size: 14px; }
+    .scenario code {
+      display: inline-block; margin: 10px 2px 0; padding: 2px 8px; border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07); font-size: 12.5px; color: var(--accent-2);
+      font-family: "Cascadia Code", Consolas, monospace;
+    }
+
+    /* ---------- 截图占位 ---------- */
+    .screenshot {
+      border: 1px dashed rgba(255, 255, 255, 0.18); border-radius: var(--radius);
+      padding: 56px 24px; text-align: center; color: var(--text-dim); font-size: 14px;
+      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 14px, rgba(255,255,255,0.035) 14px, rgba(255,255,255,0.035) 28px);
+    }
+
+    /* ---------- 快速开始 ---------- */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: step; }
+    .step { position: relative; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 24px 22px 22px; }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; top: -14px; left: 20px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--grad); color: #fff; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+    .step h3 { font-size: 15px; margin: 8px 0 6px; }
+    .step p { color: var(--text-dim); font-size: 13.5px; }
+
+    /* ---------- CTA ---------- */
+    .cta { text-align: center; padding: 80px 0; }
+    .cta h2 { font-size: clamp(24px, 4vw, 32px); font-weight: 800; margin-bottom: 12px; }
+    .cta p { color: var(--text-dim); margin-bottom: 28px; }
+
+    /* ---------- 页脚 ---------- */
+    footer { border-top: 1px solid var(--card-border); padding: 32px 0 40px; color: var(--text-dim); font-size: 13px; }
+    .foot-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+    /* ---------- 响应式 ---------- */
+    @media (max-width: 900px) {
+      .grid, .scenario-grid, .steps { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .grid, .scenario-grid, .steps { grid-template-columns: 1fr; }
+      .nav-links .hide-sm { display: none; }
+      .hero { padding: 64px 0 48px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">
+        <span class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M5 19 L19 5 M5 5 L19 19"/></svg>
+        </span>
+        Git Switch
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="hide-sm">特性</a>
+        <a href="#scenarios" class="hide-sm">场景</a>
+        <a href="#quickstart" class="hide-sm">快速开始</a>
+        <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer">GitHub</a>
+        <a class="btn btn-primary btn-sm" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">下载 Windows 版</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero wrap" id="top">
+    <div class="hero-badge">🪟 Windows 10 / 11 · 开源 · MIT License</div>
+    <h1>Git 身份,一键切换</h1>
+    <p class="sub">
+      本地 Git 配置切换工具。多套身份(工作 / 个人 / 开源)一键切换、
+      按目录自动加载、配置浏览器、备份回滚 —— 告别手改 <code>~/.gitconfig</code> 的日子。
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">⬇ 下载 Windows 版</a>
+      <a class="btn btn-ghost" href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer">查看源码</a>
+    </div>
+    <div class="hero-meta">
+      <span>最新版本 <b id="version">v0.1.0</b></span>
+      <span>·</span>
+      <span>纯本地运行,配置不出本机</span>
+      <span>·</span>
+      <span>写前自动备份,全程可回滚</span>
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="wrap">
+      <h2 class="sec-title">核心功能</h2>
+      <p class="sec-sub">为经常切换 Git 身份的开发者打造,每一个写操作都有备份兜底。</p>
+      <div class="grid">
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+          <h3>多身份配置集</h3>
+          <p>工作 / 个人 / 开源多套身份 CRUD,常用项模板(签名密钥、代理等),一键应用到全局或指定仓库。</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 7h18M7 7v14M3 21h4"/><path d="M12 21V10M12 10l-3 3M12 10l3 3M21 21V10M21 10l-3 3M21 10l3 3"/></svg></div>
+          <h3>按目录自动切换</h3>
+          <p>目录 → 配置集映射(includeIf),进入 <code>D:/work</code> 自动加载工作身份,冲突检测 + 一键同步。</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></div>
+          <h3>配置浏览器</h3>
+          <p>浏览全部配置项,标注 system / global / local 来源,敏感项默认脱敏,悬停查看配置含义。</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M12 15l-4-4M12 15l4-4"/><path d="M4 19h16"/></svg></div>
+          <h3>备份与回滚</h3>
+          <p>每次写操作前自动备份,备份点列表、行级 Diff、一键回滚,回滚前再保护 —— 全程可逆。</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M20 3v4h-4M4 21v-4h4"/></svg></div>
+          <h3>导入导出</h3>
+          <p>配置集导出 JSON / 剪贴板,敏感项可选脱敏,换机迁移一键完成。</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>系统托盘</h3>
+          <p>托盘一键应用配置集,全局身份实时显示;关闭窗口最小化到托盘,不打断工作流。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="scenarios" style="background: var(--bg-soft);">
+    <div class="wrap">
+      <h2 class="sec-title">典型场景</h2>
+      <p class="sec-sub">身兼多职的开发者,再也不用记着切换身份。</p>
+      <div class="scenario-grid">
+        <div class="scenario">
+          <h3><span class="dot work"></span>工作仓库</h3>
+          <p>公司邮箱 + 提交签名密钥 + 公司代理。进入工作目录自动生效,commit 永远署名正确。</p>
+          <code>user.email = work@company.com</code>
+          <code>user.signingkey = 4A5B…</code>
+        </div>
+        <div class="scenario">
+          <h3><span class="dot personal"></span>个人项目</h3>
+          <p>私人邮箱与 GPG 签名,和公司配置完全隔离,互不污染。</p>
+          <code>user.email = me@home.dev</code>
+          <code>commit.gpgsign = true</code>
+        </div>
+        <div class="scenario">
+          <h3><span class="dot oss"></span>开源贡献</h3>
+          <p>开源仓库用独立身份,避免把个人邮箱写进公开提交记录。</p>
+          <code>user.email = oss@github.dev</code>
+          <code>user.name = my-bot-name</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2 class="sec-title">界面预览</h2>
+      <p class="sec-sub">深色玻璃拟态设计,主题 / 语言跟随系统。</p>
+      <div class="screenshot">📸 截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)</div>
+    </div>
+  </section>
+
+  <section id="quickstart" style="background: var(--bg-soft);">
+    <div class="wrap">
+      <h2 class="sec-title">快速开始</h2>
+      <p class="sec-sub">四步完成身份切换,全程 GUI 操作。</p>
+      <div class="steps">
+        <div class="step">
+          <h3>下载安装</h3>
+          <p>从 Releases 下载安装包,双击安装;依赖 Git for Windows,首次启动自动检测。</p>
+        </div>
+        <div class="step">
+          <h3>创建配置集</h3>
+          <p>引导自动预填当前全局身份;再为工作、个人分别建一套配置集。</p>
+        </div>
+        <div class="step">
+          <h3>一键应用</h3>
+          <p>全局或仓库级应用:覆盖同名项 + 保留无关项,写前自动备份。</p>
+        </div>
+        <div class="step">
+          <h3>目录自动切换</h3>
+          <p>把目录映射到配置集,进入目录即生效;改坏了随时回滚。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta wrap">
+    <h2>现在就试试</h2>
+    <p>开源 · MIT License · Windows 10/11 免费使用</p>
+    <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">⬇ 下载 Windows 版</a>
+  </section>
+
+  <footer>
+    <div class="wrap foot-inner">
+      <div>© 2026 <a href="https://github.com/Siborne" target="_blank" rel="noreferrer">Siborne</a> · MIT License</div>
+      <div>
+        <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer">GitHub</a>
+        &nbsp;·&nbsp;
+        <a href="https://github.com/Siborne/git-switch/releases" target="_blank" rel="noreferrer">Releases</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

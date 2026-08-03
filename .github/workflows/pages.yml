@@ -1,0 +1,46 @@
+# 落地页部署：构建并发布 GitHub Pages（https://siborne.github.io/git-switch）
+#
+# 触发方式：
+#   1. push 到 master 且 docs/** 有变更
+#   2. 手动触发（workflow_dispatch）
+#
+# 依赖仓库设置：Pages source = GitHub Actions（见 .github/workflows/release-windows.yml 同仓库）
+
+name: Deploy Landing Page
+
+on:
+  push:
+    branches: [master]
+    paths: ['docs/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload landing page artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
