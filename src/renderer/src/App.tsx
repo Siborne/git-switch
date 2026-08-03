@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Layout, Menu, Tag } from 'antd'
 import {
   AppstoreOutlined,
@@ -13,6 +13,7 @@ import ProjectsPage from './pages/Projects'
 import EffectiveViewPage from './pages/EffectiveView'
 import ConfigBrowserPage from './pages/ConfigBrowser'
 import BackupsPage from './pages/Backups'
+import OnboardingModal from './components/OnboardingModal'
 
 const { Sider, Content } = Layout
 
@@ -34,7 +35,15 @@ const pages: Record<string, React.ReactNode> = {
 
 export default function App(): React.JSX.Element {
   const [active, setActive] = useState('profiles')
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
   const ver = window.gitSwitch?.versions
+
+  // 首次启动：未完成引导则弹出 onboarding
+  useEffect(() => {
+    void window.gitSwitch.onboarding.status().then((done) => {
+      if (!done) setOnboardingOpen(true)
+    })
+  }, [])
 
   return (
     <Layout className="app-shell">
@@ -66,6 +75,7 @@ export default function App(): React.JSX.Element {
       <Content style={{ overflow: 'hidden' }}>
         {pages[active]}
       </Content>
+      <OnboardingModal open={onboardingOpen} onClose={() => setOnboardingOpen(false)} />
     </Layout>
   )
 }

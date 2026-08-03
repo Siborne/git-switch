@@ -20,7 +20,7 @@ import {
   updateProfile
 } from './profiles'
 import type { ProfileInput } from './profiles'
-import { readLog } from './store'
+import { isOnboardingDone, markOnboardingDone, readLog } from './store'
 
 /** 注册 git / backup / profiles / dialog / logs 相关 IPC handler，在 app.whenReady 后调用。 */
 export function registerIpcHandlers(): void {
@@ -61,4 +61,8 @@ export function registerIpcHandlers(): void {
 
   /* ---------- logs ---------- */
   ipcMain.handle('logs:list', () => readLog())
+
+  /* ---------- onboarding ---------- */
+  ipcMain.handle('onboarding:status', () => isOnboardingDone())
+  ipcMain.handle('onboarding:markDone', () => markOnboardingDone())
 }

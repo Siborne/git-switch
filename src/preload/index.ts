@@ -10,6 +10,7 @@ import type {
   GitScope,
   LogEntry,
   LogsApi,
+  OnboardingApi,
   Profile,
   ProfileInput,
   ProfilesApi
@@ -54,6 +55,11 @@ const logsApi: LogsApi = {
   list: (): Promise<LogEntry[]> => ipcRenderer.invoke('logs:list') as Promise<LogEntry[]>
 }
 
+const onboardingApi: OnboardingApi = {
+  status: (): Promise<boolean> => ipcRenderer.invoke('onboarding:status') as Promise<boolean>,
+  markDone: (): Promise<void> => ipcRenderer.invoke('onboarding:markDone') as Promise<void>
+}
+
 const api = {
   appName: 'Git Switch',
   platform: process.platform,
@@ -66,7 +72,8 @@ const api = {
   backup: backupApi,
   profiles: profilesApi,
   dialog: dialogApi,
-  logs: logsApi
+  logs: logsApi,
+  onboarding: onboardingApi
 }
 
 contextBridge.exposeInMainWorld('gitSwitch', api)

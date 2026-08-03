@@ -50,6 +50,7 @@ export interface GitSwitchApi {
   profiles: ProfilesApi
   dialog: DialogApi
   logs: LogsApi
+  onboarding: OnboardingApi
 }
 
 /* ---------- 备份 ---------- */
@@ -128,4 +129,11 @@ export interface LogEntry {
 
 export interface LogsApi {
   list: () => Promise<LogEntry[]>
+}
+
+export interface OnboardingApi {
+  /** 是否已完成首次启动引导 */
+  status: () => Promise<boolean>
+  /** 标记引导完成 */
+  markDone: () => Promise<void>
 }
