@@ -46,4 +46,86 @@ export interface GitSwitchApi {
     chrome: string
   }
   git: GitApi
+  backup: BackupApi
+  profiles: ProfilesApi
+  dialog: DialogApi
+  logs: LogsApi
+}
+
+/* ---------- 备份 ---------- */
+
+export interface BackupMeta {
+  /** 备份点 id（时间戳） */
+  id: string
+  /** ISO 时间 */
+  createdAt: string
+  /** 触发备份的操作说明 */
+  reason: string
+  /** 被备份的原始文件路径（与备份文件按索引对应） */
+  files: string[]
+  /** 备份文件所在目录 */
+  backupDir: string
+}
+
+export interface BackupApi {
+  /** 备份点列表（新→旧） */
+  list: () => Promise<BackupMeta[]>
+  /** 回滚到指定备份点（回滚前自动保护当前状态） */
+  restore: (id: string) => Promise<{ restored: string[]; protection: BackupMeta | null }>
+}
+
+/* ---------- 配置集 ---------- */
+
+export interface ProfileItem {
+  key: string
+  value: string
+}
+
+export interface Profile {
+  id: string
+  name: string
+  description?: string
+  items: ProfileItem[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ProfileInput {
+  name: string
+  description?: string
+  items: ProfileItem[]
+}
+
+export interface ApplyResult {
+  backedUp: boolean
+  applied: number
+}
+
+export interface ProfilesApi {
+  list: () => Promise<Profile[]>
+  get: (id: string) => Promise<Profile | null>
+  create: (input: ProfileInput) => Promise<Profile>
+  update: (id: string, input: ProfileInput) => Promise<Profile>
+  remove: (id: string) => Promise<void>
+  /** 应用到全局（覆盖同名项 + 保留无关项，写前备份） */
+  applyGlobal: (id: string) => Promise<ApplyResult>
+  /** 应用到仓库 local scope（写前备份） */
+  applyRepo: (id: string, cwd: string) => Promise<ApplyResult>
+}
+
+/* ---------- 其他 ---------- */
+
+export interface DialogApi {
+  /** 系统目录选择器，取消返回 null */
+  pickDirectory: () => Promise<string | null>
+}
+
+export interface LogEntry {
+  ts: string
+  action: string
+  detail?: string
+}
+
+export interface LogsApi {
+  list: () => Promise<LogEntry[]>
 }

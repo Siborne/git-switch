@@ -1,6 +1,7 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { registerIpcHandlers } from './ipc'
+import { runSmoke } from './smoke'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -37,8 +38,22 @@ function createWindow(): void {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   registerIpcHandlers()
+
+  // 冒烟测试模式：GS_SMOKE=1 时跑完整服务链路后退出，不打开窗口
+  if (process.env.GS_SMOKE === '1') {
+    try {
+      await runSmoke()
+      console.log('[smoke] PASS')
+      app.exit(0)
+    } catch (err) {
+      console.error('[smoke] FAIL:', err)
+      app.exit(1)
+    }
+    return
+  }
+
   createWindow()
 
   app.on('activate', () => {
