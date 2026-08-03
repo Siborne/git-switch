@@ -2,6 +2,10 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { registerIpcHandlers } from './ipc'
 import { runSmoke } from './smoke'
+import { createTray } from './tray'
+
+let mainWindowRef: BrowserWindow | null = null
+let isQuitting = false
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -20,9 +24,22 @@ function createWindow(): void {
       nodeIntegration: false
     }
   })
+  mainWindowRef = mainWindow
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  // 关闭窗口时最小化到系统托盘（托盘「退出」才真正退出）
+  mainWindow.on('close', (e) => {
+    if (!isQuitting) {
+      e.preventDefault()
+      mainWindow.hide()
+    }
+  })
+
+  mainWindow.on('closed', () => {
+    mainWindowRef = null
   })
 
   // 外部链接一律走系统浏览器，禁止在应用内新开窗口
@@ -55,12 +72,18 @@ app.whenReady().then(async () => {
   }
 
   createWindow()
+  createTray(() => mainWindowRef)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
+app.on('before-quit', () => {
+  isQuitting = true
+})
+
+// 托盘驻留：窗口全部关闭时不退出应用
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  // 由托盘「退出」或系统退出事件结束进程
 })

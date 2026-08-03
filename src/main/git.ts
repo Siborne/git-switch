@@ -72,7 +72,8 @@ export async function runGit(args: string[], opts: GitOptions = {}): Promise<str
       windowsHide: true,
       maxBuffer: 32 * 1024 * 1024,
       timeout: opts.timeoutMs ?? 30000,
-      encoding: 'utf8'
+      encoding: 'utf8',
+      env: opts.env ? { ...process.env, ...opts.env } : undefined
     })
     return stdout
   } catch (err) {
@@ -125,6 +126,21 @@ export async function unsetConfig(key: string, scope: GitScope = 'global', opts:
   assertScope(scope)
   try {
     await runGit(['config', `--${scope}`, '--unset-all', key], opts)
+  } catch (err) {
+    if (err instanceof GitError && err.exitCode === 5) return
+    throw err
+  }
+}
+
+/** 向指定配置文件写入配置项（git config --file，用于生成配置集独立文件） */
+export async function setConfigFile(file: string, key: string, value: string, opts: GitOptions = {}): Promise<void> {
+  await runGit(['config', '--file', file, key, value], opts)
+}
+
+/** 从指定配置文件删除配置项（--unset-all）；key 不存在（exit 5）视为成功 */
+export async function unsetConfigFile(file: string, key: string, opts: GitOptions = {}): Promise<void> {
+  try {
+    await runGit(['config', '--file', file, '--unset-all', key], opts)
   } catch (err) {
     if (err instanceof GitError && err.exitCode === 5) return
     throw err

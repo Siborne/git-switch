@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
+  ActualInclude,
   ApplyResult,
   BackupApi,
   BackupMeta,
@@ -8,12 +9,15 @@ import type {
   GitConfigEntry,
   GitOptions,
   GitScope,
+  IncludeApi,
+  IncludeRule,
   LogEntry,
   LogsApi,
   OnboardingApi,
   Profile,
   ProfileInput,
-  ProfilesApi
+  ProfilesApi,
+  SyncResult
 } from '../shared/types'
 
 const gitApi: GitApi = {
@@ -60,6 +64,19 @@ const onboardingApi: OnboardingApi = {
   markDone: (): Promise<void> => ipcRenderer.invoke('onboarding:markDone') as Promise<void>
 }
 
+const includeApi: IncludeApi = {
+  list: (): Promise<IncludeRule[]> => ipcRenderer.invoke('include:list') as Promise<IncludeRule[]>,
+  create: (input: { profileId: string; path: string }): Promise<IncludeRule> =>
+    ipcRenderer.invoke('include:create', input) as Promise<IncludeRule>,
+  update: (id: string, input: { profileId: string; path: string }): Promise<IncludeRule> =>
+    ipcRenderer.invoke('include:update', id, input) as Promise<IncludeRule>,
+  remove: (id: string): Promise<void> => ipcRenderer.invoke('include:delete', id) as Promise<void>,
+  toggle: (id: string, enabled: boolean): Promise<IncludeRule> =>
+    ipcRenderer.invoke('include:toggle', id, enabled) as Promise<IncludeRule>,
+  sync: (): Promise<SyncResult> => ipcRenderer.invoke('include:sync') as Promise<SyncResult>,
+  actual: (): Promise<ActualInclude[]> => ipcRenderer.invoke('include:actual') as Promise<ActualInclude[]>
+}
+
 const api = {
   appName: 'Git Switch',
   platform: process.platform,
@@ -73,7 +90,8 @@ const api = {
   profiles: profilesApi,
   dialog: dialogApi,
   logs: logsApi,
-  onboarding: onboardingApi
+  onboarding: onboardingApi,
+  include: includeApi
 }
 
 contextBridge.exposeInMainWorld('gitSwitch', api)

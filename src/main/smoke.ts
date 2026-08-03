@@ -12,6 +12,7 @@ import { setDataDir } from './store'
 import { applyProfileToRepo, createProfile, deleteProfile, listProfiles } from './profiles'
 import { listBackups, restoreBackup } from './backup'
 import { runGit, setConfig } from './git'
+import { createIncludeRule, deleteIncludeRule, syncIncludeRules } from './includeIf'
 
 function assert(cond: boolean, msg: string): void {
   if (!cond) throw new Error(`断言失败: ${msg}`)
@@ -85,6 +86,57 @@ export async function runSmoke(): Promise<void> {
     await deleteProfile(p.id)
     const remaining = await listProfiles()
     assert(remaining.length === 0, '配置集已删除')
+
+    // ============ includeIf 自动切换链路（隔离测试） ============
+    const testGlobal = join(base, 'global.gitconfig')
+    const testProfileDir = join(base, 'profile-files')
+    await fs.mkdir(testProfileDir)
+    process.env.GS_TEST_GLOBAL_CONFIG = testGlobal
+    process.env.GS_TEST_PROFILE_DIR = testProfileDir
+
+    const work = join(base, 'work')
+    await fs.mkdir(work)
+
+    // 8. 创建"工作"配置集 + 目录映射规则
+    const workProfile = await createProfile({
+      name: '工作身份',
+      items: [
+        { key: 'user.name', value: 'Work User' },
+        { key: 'user.email', value: 'work@company.com' }
+      ]
+    })
+    const rule = await createIncludeRule({ profileId: workProfile.id, path: work })
+    const syncResult = await syncIncludeRules()
+    assert(syncResult.applied.length === 1, `includeIf 同步成功（${syncResult.applied[0]}）`)
+    assert(syncResult.conflicts.length === 0, '无冲突提示')
+
+    // 9. 在映射目录下建仓库，验证 includeIf 自动加载身份（无 local/global 配置）
+    const cfgEnv = { GIT_CONFIG_GLOBAL: testGlobal }
+    await runGit(['init', '-b', 'master'], { cwd: work, env: cfgEnv })
+    const autoEmail = (await runGit(['config', '--get', 'user.email'], { cwd: work, env: cfgEnv })).trim()
+    assert(autoEmail === 'work@company.com', `includeIf 自动生效: ${autoEmail}`)
+    const autoName = (await runGit(['config', '--get', 'user.name'], { cwd: work, env: cfgEnv })).trim()
+    assert(autoName === 'Work User', `includeIf 自动生效 user.name: ${autoName}`)
+
+    // 10. 删除规则并重新同步，验证 includeIf 失效（回到空全局）
+    await deleteIncludeRule(rule.id)
+    await syncIncludeRules()
+    let afterRemove = ''
+    try {
+      afterRemove = (await runGit(['config', '--get', 'user.email'], { cwd: work, env: cfgEnv })).trim()
+    } catch {
+      // key 不存在
+    }
+    assert(afterRemove === '', `删除规则后 includeIf 失效（当前: "${afterRemove}"）`)
+
+    // 11. 配置集独立文件已清理
+    const leftover = await fs.readdir(testProfileDir).catch(() => [] as string[])
+    assert(leftover.length === 0, '配置集独立文件已清理')
+
+    // 12. 清理测试配置集
+    await deleteProfile(workProfile.id)
+    delete process.env.GS_TEST_GLOBAL_CONFIG
+    delete process.env.GS_TEST_PROFILE_DIR
 
     console.log('[smoke] ALL PASS')
   } finally {

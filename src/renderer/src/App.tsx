@@ -6,13 +6,15 @@ import {
   HistoryOutlined,
   IdcardOutlined,
   RadarChartOutlined,
-  BranchesOutlined
+  BranchesOutlined,
+  SwapOutlined
 } from '@ant-design/icons'
 import ProfilesPage from './pages/Profiles'
 import ProjectsPage from './pages/Projects'
 import EffectiveViewPage from './pages/EffectiveView'
 import ConfigBrowserPage from './pages/ConfigBrowser'
 import BackupsPage from './pages/Backups'
+import IncludeIfPage from './pages/IncludeIf'
 import OnboardingModal from './components/OnboardingModal'
 
 const { Sider, Content } = Layout
@@ -21,6 +23,7 @@ const menuItems = [
   { key: 'profiles', icon: <IdcardOutlined />, label: '配置集' },
   { key: 'projects', icon: <FolderOpenOutlined />, label: '项目配置' },
   { key: 'effective', icon: <RadarChartOutlined />, label: '生效值' },
+  { key: 'include', icon: <SwapOutlined />, label: '自动切换' },
   { key: 'browser', icon: <AppstoreOutlined />, label: '配置浏览器' },
   { key: 'backups', icon: <HistoryOutlined />, label: '备份与回滚' }
 ]
@@ -29,6 +32,7 @@ const pages: Record<string, React.ReactNode> = {
   profiles: <ProfilesPage />,
   projects: <ProjectsPage />,
   effective: <EffectiveViewPage />,
+  include: <IncludeIfPage />,
   browser: <ConfigBrowserPage />,
   backups: <BackupsPage />
 }

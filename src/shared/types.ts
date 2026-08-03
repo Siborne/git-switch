@@ -16,6 +16,8 @@ export interface GitOptions {
   cwd?: string
   /** 命令超时，默认 30s */
   timeoutMs?: number
+  /** 附加环境变量（如 GIT_CONFIG_GLOBAL 用于重定向全局配置，测试隔离用） */
+  env?: Record<string, string | undefined>
 }
 
 export type GitScope = 'system' | 'global' | 'local' | 'worktree'
@@ -51,6 +53,7 @@ export interface GitSwitchApi {
   dialog: DialogApi
   logs: LogsApi
   onboarding: OnboardingApi
+  include: IncludeApi
 }
 
 /* ---------- 备份 ---------- */
@@ -136,4 +139,41 @@ export interface OnboardingApi {
   status: () => Promise<boolean>
   /** 标记引导完成 */
   markDone: () => Promise<void>
+}
+
+/* ---------- includeIf 自动切换 ---------- */
+
+export interface IncludeRule {
+  id: string
+  profileId: string
+  /** 规范化后的目录（正斜杠），如 D:/work */
+  path: string
+  enabled: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SyncResult {
+  /** 实际写入的规则（enabled 且已同步） */
+  applied: string[]
+  /** 冲突提示 */
+  conflicts: string[]
+}
+
+export interface ActualInclude {
+  key: string
+  dir: string
+  file: string
+}
+
+export interface IncludeApi {
+  list: () => Promise<IncludeRule[]>
+  create: (input: { profileId: string; path: string }) => Promise<IncludeRule>
+  update: (id: string, input: { profileId: string; path: string }) => Promise<IncludeRule>
+  remove: (id: string) => Promise<void>
+  toggle: (id: string, enabled: boolean) => Promise<IncludeRule>
+  /** 同步规则到全局配置（生成配置集独立文件 + 写 includeIf 段） */
+  sync: () => Promise<SyncResult>
+  /** 读取全局配置中实际的 includeIf 段 */
+  actual: () => Promise<ActualInclude[]>
 }

@@ -21,6 +21,15 @@ import {
 } from './profiles'
 import type { ProfileInput } from './profiles'
 import { isOnboardingDone, markOnboardingDone, readLog } from './store'
+import {
+  createIncludeRule,
+  deleteIncludeRule,
+  listIncludeRules,
+  readActualIncludes,
+  syncIncludeRules,
+  toggleIncludeRule,
+  updateIncludeRule
+} from './includeIf'
 
 /** 注册 git / backup / profiles / dialog / logs 相关 IPC handler，在 app.whenReady 后调用。 */
 export function registerIpcHandlers(): void {
@@ -65,4 +74,13 @@ export function registerIpcHandlers(): void {
   /* ---------- onboarding ---------- */
   ipcMain.handle('onboarding:status', () => isOnboardingDone())
   ipcMain.handle('onboarding:markDone', () => markOnboardingDone())
+
+  /* ---------- includeIf 自动切换 ---------- */
+  ipcMain.handle('include:list', () => listIncludeRules())
+  ipcMain.handle('include:create', (_event, input: { profileId: string; path: string }) => createIncludeRule(input))
+  ipcMain.handle('include:update', (_event, id: string, input: { profileId: string; path: string }) => updateIncludeRule(id, input))
+  ipcMain.handle('include:delete', (_event, id: string) => deleteIncludeRule(id))
+  ipcMain.handle('include:toggle', (_event, id: string, enabled: boolean) => toggleIncludeRule(id, enabled))
+  ipcMain.handle('include:sync', () => syncIncludeRules())
+  ipcMain.handle('include:actual', () => readActualIncludes())
 }
