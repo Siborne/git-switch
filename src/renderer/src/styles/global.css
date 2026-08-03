@@ -370,30 +370,6 @@ body {
   color: #2563eb;
 }
 
-/* Sidebar 底部版本 Footer Card */
-.sider-footer {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--hover-bg);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-tertiary);
-  line-height: 2;
-}
-
-.sider-footer .ver {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.sider-footer .ver b {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
 /* ---------- Header ---------- */
 .app-header {
   display: flex;

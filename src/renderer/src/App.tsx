@@ -193,20 +193,6 @@ export default function App(): React.JSX.Element {
                 items={menuItems}
                 onClick={({ key }) => setActive(key)}
               />
-              <div className="sider-footer">
-                <div className="ver">
-                  <span>Git</span>
-                  <b>{gitVersion ? gitVersion.replace(/^git version\s*/i, '').split(' ')[0] : '—'}</b>
-                </div>
-                <div className="ver">
-                  <span>Electron</span>
-                  <b>{versions?.electron ?? '—'}</b>
-                </div>
-                <div className="ver">
-                  <span>Node</span>
-                  <b>{versions?.node ?? '—'}</b>
-                </div>
-              </div>
             </div>
           </Sider>
           <Content className="app-content">
