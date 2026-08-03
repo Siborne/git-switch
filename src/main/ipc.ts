@@ -1,4 +1,11 @@
 import { ipcMain, dialog, clipboard, BrowserWindow } from 'electron'
+
+/** 关闭窗口行为：true=最小化到托盘，false=直接退出（由设置控制） */
+let closeToTray = true
+
+export function getCloseToTray(): boolean {
+  return closeToTray
+}
 import { promises as fs } from 'fs'
 import {
   findGit,
@@ -126,6 +133,9 @@ export function registerIpcHandlers(): void {
   })
   ipcMain.on('window:hide', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.hide()
+  })
+  ipcMain.on('window:setCloseBehavior', (_event, toTray: boolean) => {
+    closeToTray = toTray
   })
 
   /* ---------- onboarding ---------- */

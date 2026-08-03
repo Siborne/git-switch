@@ -96,6 +96,7 @@ const windowControls: WindowControlsApi = {
   minimize: (): void => ipcRenderer.send('window:minimize'),
   toggleMaximize: (): void => ipcRenderer.send('window:toggleMaximize'),
   hide: (): void => ipcRenderer.send('window:hide'),
+  setCloseBehavior: (toTray: boolean): void => ipcRenderer.send('window:setCloseBehavior', toTray),
   onMaximizedChange: (cb: (maximized: boolean) => void): (() => void) => {
     const listener = (_e: unknown, maximized: boolean): void => cb(maximized)
     ipcRenderer.on('window:maximized', listener)

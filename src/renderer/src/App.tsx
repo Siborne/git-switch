@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Button, ConfigProvider, Layout, Menu, Select, message } from 'antd'
+import { Button, ConfigProvider, Layout, Menu, Radio, Select, Typography, message } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
+import enUS from 'antd/locale/en_US'
 import {
   GitBranch,
   IdCard,
@@ -10,9 +11,11 @@ import {
   SlidersHorizontal,
   History,
   LayoutDashboard,
+  Settings as SettingsIcon,
   ExternalLink,
   Sun,
-  Moon
+  Moon,
+  Monitor
 } from 'lucide-react'
 import { darkThemeConfig, lightThemeConfig } from './theme'
 import ProfilesPage from './pages/Profiles'
@@ -22,15 +25,18 @@ import ConfigBrowserPage from './pages/ConfigBrowser'
 import BackupsPage from './pages/Backups'
 import IncludeIfPage from './pages/IncludeIf'
 import DashboardPage from './pages/Dashboard'
+import SettingsPage from './pages/Settings'
 import OnboardingModal from './components/OnboardingModal'
 import TitleBar from './components/TitleBar'
-import { getLang, onLangChange, setLang, t } from './lib/i18n'
-import type { Lang } from './lib/i18n'
+import { getLangPref, onLangChange, setLangPref, t } from './lib/i18n'
+import { loadSettings, saveSettings, systemPrefersDark, onSystemThemeChange, systemLang } from './lib/settings'
+import type { ThemePref } from './lib/settings'
+import type { LangPref } from './lib/i18n'
 import type { Profile } from '../../shared/types'
 
 const { Sider, Content } = Layout
 
-const menuKeys = ['dashboard', 'profiles', 'projects', 'effective', 'include', 'browser', 'backups'] as const
+const menuKeys = ['dashboard', 'profiles', 'projects', 'effective', 'include', 'browser', 'backups', 'settings'] as const
 
 const pageLabels: Record<(typeof menuKeys)[number], [string, string]> = {
   dashboard: ['概览', 'Overview'],
@@ -39,7 +45,8 @@ const pageLabels: Record<(typeof menuKeys)[number], [string, string]> = {
   effective: ['生效值', 'Effective'],
   include: ['自动切换', 'Auto Switch'],
   browser: ['配置浏览器', 'Config Browser'],
-  backups: ['备份与回滚', 'Backups']
+  backups: ['备份与回滚', 'Backups'],
+  settings: ['设置', 'Settings']
 }
 
 const menuIcons: Record<(typeof menuKeys)[number], React.ReactNode> = {
@@ -49,7 +56,8 @@ const menuIcons: Record<(typeof menuKeys)[number], React.ReactNode> = {
   effective: <Layers size={17} />,
   include: <ArrowLeftRight size={17} />,
   browser: <SlidersHorizontal size={17} />,
-  backups: <History size={17} />
+  backups: <History size={17} />,
+  settings: <SettingsIcon size={17} />
 }
 
 const pages: Record<string, React.ReactNode> = {
@@ -62,7 +70,11 @@ const pages: Record<string, React.ReactNode> = {
   backups: <BackupsPage />
 }
 
-type ThemeMode = 'dark' | 'light'
+const THEME_ICON: Record<ThemePref, React.ReactNode> = {
+  system: <Monitor size={15} />,
+  dark: <Moon size={15} />,
+  light: <Sun size={15} />
+}
 
 export default function App(): React.JSX.Element {
   const [active, setActive] = useState('dashboard')
@@ -71,23 +83,46 @@ export default function App(): React.JSX.Element {
   const [gitVersion, setGitVersion] = useState<string | null>(null)
   const [quickProfiles, setQuickProfiles] = useState<Profile[]>([])
   const [quickApplying, setQuickApplying] = useState(false)
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem('gs-theme')
-    return saved === 'light' ? 'light' : 'dark'
-  })
-  const [lang, setLangState] = useState<Lang>(getLang)
+  const [themePref, setThemePref] = useState<ThemePref>(() => loadSettings().theme)
+  const [closeToTray, setCloseToTray] = useState<boolean>(() => loadSettings().closeToTray)
+  const [systemDark, setSystemDark] = useState<boolean>(systemPrefersDark)
+  const [langPref, setLangPrefState] = useState<LangPref>(getLangPref)
   const [messageApi, contextHolder] = message.useMessage()
 
-  // 语言状态同步
-  useEffect(() => onLangChange(setLangState), [])
+  // 跟随系统：监听系统主题变化
+  useEffect(() => onSystemThemeChange(setSystemDark), [])
+
+  // 语言状态同步（含跟随系统的解析值变化）
+  useEffect(() => onLangChange(setLangPrefState), [])
+
+  // 解析最终主题并应用到 document
+  const effectiveTheme: 'dark' | 'light' = themePref === 'system' ? (systemDark ? 'dark' : 'light') : themePref
+  const resolvedLang: 'zh' | 'en' = langPref === 'system' ? systemLang() : langPref
+  useEffect(() => {
+    document.documentElement.dataset.theme = effectiveTheme
+  }, [effectiveTheme])
+
+  // 初始同步关闭行为到主进程
+  useEffect(() => {
+    window.gitSwitch.windowControls.setCloseBehavior(loadSettings().closeToTray)
+  }, [])
+
+  const handleThemeChange = (v: ThemePref): void => {
+    setThemePref(v)
+    saveSettings({ ...loadSettings(), theme: v })
+  }
+
+  const handleLangChange = (v: LangPref): void => {
+    setLangPref(v)
+  }
+
+  const handleCloseBehaviorChange = (v: boolean): void => {
+    setCloseToTray(v)
+    saveSettings({ ...loadSettings(), closeToTray: v })
+    window.gitSwitch.windowControls.setCloseBehavior(v)
+  }
 
   const menuItems = menuKeys.map((key) => ({ key, icon: menuIcons[key], label: t(pageLabels[key][0], pageLabels[key][1]) }))
-
-  // 主题应用到 document + 持久化
-  useEffect(() => {
-    document.documentElement.dataset.theme = themeMode
-    localStorage.setItem('gs-theme', themeMode)
-  }, [themeMode])
 
   useEffect(() => {
     setVersions(window.gitSwitch.versions)
@@ -98,20 +133,27 @@ export default function App(): React.JSX.Element {
     void window.gitSwitch.profiles.list().then(setQuickProfiles)
   }, [])
 
-  // 键盘导航：Ctrl/Cmd + 1~7 切换页面
+  // 键盘导航：Ctrl/Cmd + 1~8 切换页面
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= String(menuItems.length)) {
-        const item = menuItems[Number(e.key) - 1]
+      if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= String(menuKeys.length)) {
+        const item = menuKeys[Number(e.key) - 1]
         if (item) {
           e.preventDefault()
-          setActive(item.key)
+          setActive(item)
         }
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+
+  const cycleTheme = (): void => {
+    const order: ThemePref[] = ['system', 'dark', 'light']
+    const next = order[(order.indexOf(themePref) + 1) % order.length]
+    setThemePref(next)
+    saveSettings({ ...loadSettings(), theme: next })
+  }
 
   const quickApply = async (id: string): Promise<void> => {
     const p = quickProfiles.find((x) => x.id === id)
@@ -128,7 +170,7 @@ export default function App(): React.JSX.Element {
   }
 
   return (
-    <ConfigProvider locale={zhCN} theme={themeMode === 'dark' ? darkThemeConfig : lightThemeConfig}>
+    <ConfigProvider locale={resolvedLang === 'zh' ? zhCN : enUS} theme={effectiveTheme === 'dark' ? darkThemeConfig : lightThemeConfig}>
       <div className="app-shell">
         <TitleBar />
         <Layout className="app-body">
@@ -171,18 +213,16 @@ export default function App(): React.JSX.Element {
             {contextHolder}
             <div className="app-header">
               <div>
-                <div className="h-title">{t(pageLabels[active as keyof typeof pageLabels][0], pageLabels[active as keyof typeof pageLabels][1])}</div>
+                <div className="h-title">
+                  {t(pageLabels[active as keyof typeof pageLabels][0], pageLabels[active as keyof typeof pageLabels][1])}
+                </div>
                 <div className="h-sub">{t('Git 身份与配置管理器', 'Git Identity & Profile Manager for Developers')}</div>
               </div>
               <div className="h-actions">
-                <Button onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} title={t('切换语言', 'Switch language')}>
-                  {lang === 'zh' ? 'EN' : '中文'}
+                <Button onClick={() => setLangPref(langPref === 'zh' ? 'en' : langPref === 'en' ? 'system' : 'zh')} title={t('切换语言', 'Switch language')}>
+                  {langPref === 'system' ? t('跟随系统', 'Auto') : langPref === 'zh' ? '中文' : 'EN'}
                 </Button>
-                <Button
-                  icon={themeMode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-                  onClick={() => setThemeMode((m) => (m === 'dark' ? 'light' : 'dark'))}
-                  title={themeMode === 'dark' ? t('切换到浅色模式', 'Switch to light') : t('切换到深色模式', 'Switch to dark')}
-                />
+                <Button icon={THEME_ICON[themePref]} onClick={cycleTheme} title={t('切换主题', 'Switch theme')} />
                 <Select
                   size="middle"
                   style={{ width: 210 }}
@@ -197,7 +237,20 @@ export default function App(): React.JSX.Element {
                 </Button>
               </div>
             </div>
-            {pages[active]}
+            {active === 'settings' ? (
+              <SettingsPage
+                themePref={themePref}
+                onThemeChange={handleThemeChange}
+                langPref={langPref}
+                onLangChange={handleLangChange}
+                closeToTray={closeToTray}
+                onCloseBehaviorChange={handleCloseBehaviorChange}
+                versions={versions}
+                gitVersion={gitVersion}
+              />
+            ) : (
+              pages[active]
+            )}
           </Content>
         </Layout>
         <OnboardingModal open={onboardingOpen} onClose={() => setOnboardingOpen(false)} />

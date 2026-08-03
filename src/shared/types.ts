@@ -204,6 +204,8 @@ export interface WindowControlsApi {
   toggleMaximize: () => void
   /** 关闭到系统托盘 */
   hide: () => void
+  /** 设置关闭行为：true=最小化到托盘，false=直接退出 */
+  setCloseBehavior: (toTray: boolean) => void
   /** 监听最大化状态变化；返回取消订阅函数 */
   onMaximizedChange: (cb: (maximized: boolean) => void) => () => void
 }

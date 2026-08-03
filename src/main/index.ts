@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
-import { registerIpcHandlers } from './ipc'
+import { registerIpcHandlers, getCloseToTray } from './ipc'
 import { runSmoke } from './smoke'
 import { createTray } from './tray'
 
@@ -39,9 +39,9 @@ function createWindow(): void {
     mainWindow.webContents.send('window:maximized', false)
   })
 
-  // 关闭窗口时最小化到系统托盘（托盘「退出」才真正退出）
+  // 关闭窗口：设置允许时最小化到系统托盘，否则直接退出
   mainWindow.on('close', (e) => {
-    if (!isQuitting) {
+    if (!isQuitting && getCloseToTray()) {
       e.preventDefault()
       mainWindow.hide()
     }
@@ -92,7 +92,7 @@ app.on('before-quit', () => {
   isQuitting = true
 })
 
-// 托盘驻留：窗口全部关闭时不退出应用
+// 托盘驻留：仅当窗口真正关闭（非隐藏）时退出应用
 app.on('window-all-closed', () => {
-  // 由托盘「退出」或系统退出事件结束进程
+  app.quit()
 })
