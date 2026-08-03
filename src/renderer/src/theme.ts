@@ -18,7 +18,7 @@ export const antdThemeConfig: ThemeConfig = {
     // 色板
     colorPrimary: '#3B82F6',
     colorInfo: '#3B82F6',
-    colorSuccess: '#22C55E',
+    colorSuccess: '#10B981',
     colorWarning: '#F59E0B',
     colorError: '#EF4444',
     colorLink: '#3B82F6',
@@ -76,7 +76,7 @@ export const antdThemeConfig: ThemeConfig = {
       itemBorderRadius: 10,
       itemMarginInline: 12,
       itemHeight: 40,
-      iconSize: 17
+      iconSize: 20
     },
     Card: {
       colorBgContainer: '#1A2234',
@@ -91,7 +91,7 @@ export const antdThemeConfig: ThemeConfig = {
       headerSplitColor: 'transparent',
       rowHoverBg: 'rgba(255, 255, 255, 0.045)',
       borderColor: 'rgba(255, 255, 255, 0.06)',
-      cellPaddingBlock: 12,
+      cellPaddingBlock: 13,
       cellPaddingInline: 16
     },
     Button: {
@@ -182,7 +182,7 @@ export const lightThemeConfig: ThemeConfig = {
       itemBorderRadius: 10,
       itemMarginInline: 12,
       itemHeight: 40,
-      iconSize: 17
+      iconSize: 20
     },
     Card: {
       colorBgContainer: '#FFFFFF',
@@ -197,7 +197,7 @@ export const lightThemeConfig: ThemeConfig = {
       headerSplitColor: 'transparent',
       rowHoverBg: 'rgba(37, 99, 235, 0.05)',
       borderColor: 'rgba(15, 23, 42, 0.08)',
-      cellPaddingBlock: 12,
+      cellPaddingBlock: 13,
       cellPaddingInline: 16
     },
     Button: {

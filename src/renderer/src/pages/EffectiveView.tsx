@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Card,
-  Empty,
   Input,
   Select,
   Space,
@@ -15,7 +14,8 @@ import {
   message
 } from 'antd'
 import type { TableProps } from 'antd'
-import { FolderGit2, RefreshCw } from 'lucide-react'
+import { FolderGit2, RefreshCw, Layers } from 'lucide-react'
+import TableEmpty from '../components/TableEmpty'
 import type { GitConfigEntry } from '../../../shared/types'
 import { describeKey } from '../lib/keyDocs'
 import { t } from '../lib/i18n'
@@ -230,7 +230,7 @@ export default function EffectiveViewPage(): React.JSX.Element {
               }
             })}
             pagination={{ pageSize: 20, showSizeChanger: false }}
-            locale={{ emptyText: <Empty description="暂无配置" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+            locale={{ emptyText: <TableEmpty icon={<Layers size={22} />} description="暂无配置" /> }}
           />
         </Spin>
       </Card>

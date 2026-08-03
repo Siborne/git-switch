@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Card,
-  Empty,
   Form,
   Input,
   Modal,
@@ -20,6 +19,7 @@ import {
 } from 'antd'
 import type { TableProps } from 'antd'
 import { Pencil, Trash2, FolderGit2, Plus, RefreshCw, GitBranch, Globe, GitCommitHorizontal } from 'lucide-react'
+import TableEmpty from '../components/TableEmpty'
 import type { GitConfigEntry, LastCommitInfo, Profile } from '../../../shared/types'
 import { describeKey } from '../lib/keyDocs'
 import { t } from '../lib/i18n'
@@ -341,7 +341,7 @@ export default function ProjectsPage(): React.JSX.Element {
                         columns={localColumns}
                         dataSource={localEntries}
                         pagination={false}
-                        locale={{ emptyText: <Empty description="该仓库暂无本地配置" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                        locale={{ emptyText: <TableEmpty icon={<FolderGit2 size={22} />} description="该仓库暂无本地配置" /> }}
                       />
                     </Spin>
                   </>
@@ -358,7 +358,7 @@ export default function ProjectsPage(): React.JSX.Element {
                       columns={allColumns}
                       dataSource={allEntries}
                       pagination={{ pageSize: 20, showSizeChanger: false }}
-                      locale={{ emptyText: <Empty description="暂无配置" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                      locale={{ emptyText: <TableEmpty icon={<GitBranch size={22} />} description="暂无配置" /> }}
                     />
                   </Spin>
                 )

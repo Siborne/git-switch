@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Empty, Modal, Popconfirm, Space, Spin, Table, Tag, Timeline, Typography, message } from 'antd'
-import { Undo2, FileSearch, GitCompare } from 'lucide-react'
+import { Button, Card, Modal, Popconfirm, Space, Spin, Table, Tag, Timeline, Typography, message } from 'antd'
+import { Undo2, FileSearch, GitCompare, History } from 'lucide-react'
+import TableEmpty from '../components/TableEmpty'
 import type { TableProps } from 'antd'
 import type { BackupMeta, DiffFileResult, LogEntry } from '../../../shared/types'
 import { t } from '../lib/i18n'
@@ -155,7 +156,7 @@ export default function BackupsPage(): React.JSX.Element {
           <Tag color={ACTION_COLOR[l.action] ?? 'default'} style={{ marginRight: 0 }}>
             {ACTION_LABEL[l.action] ?? l.action}
           </Tag>
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          <Typography.Text type="secondary" style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>
             {fmtTime(l.ts)}
           </Typography.Text>
         </Space>
@@ -186,7 +187,7 @@ export default function BackupsPage(): React.JSX.Element {
               columns={columns}
               dataSource={backups}
               pagination={{ pageSize: 8, showSizeChanger: false }}
-              locale={{ emptyText: <Empty description="暂无备份记录" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+              locale={{ emptyText: <TableEmpty icon={<History size={22} />} description="暂无备份记录" /> }}
             />
           </Spin>
         </Card>
@@ -196,7 +197,7 @@ export default function BackupsPage(): React.JSX.Element {
             {timelineItems.length > 0 ? (
               <Timeline items={timelineItems} style={{ maxHeight: 320, overflowY: 'auto' }} />
             ) : (
-              <Empty description="暂无操作记录" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              <TableEmpty icon={<FileSearch size={22} />} description="暂无操作记录" />
             )}
           </Spin>
         </Card>

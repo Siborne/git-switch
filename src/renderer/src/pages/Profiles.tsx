@@ -305,9 +305,12 @@ export default function ProfilesPage(): React.JSX.Element {
                   ) : (
                     p.items.map((it, idx) => {
                       const doc = describeKey(it.key)
+                      const masked = SENSITIVE_RE.test(it.key) ? maskValue(it.value) : it.value
                       const tag = (
-                        <Tag key={idx} className={keyTagClass(it.key)} style={{ marginRight: 0, fontFamily: "'JetBrains Mono', monospace" }}>
-                          {it.key}={SENSITIVE_RE.test(it.key) ? maskValue(it.value) : it.value}
+                        <Tag key={idx} className={`${keyTagClass(it.key)} kv-tag`} style={{ marginRight: 0 }}>
+                          <span className="kv-key">{it.key}</span>
+                          <span className="kv-eq">=</span>
+                          <span className="kv-val">{masked}</span>
                         </Tag>
                       )
                       return doc ? (

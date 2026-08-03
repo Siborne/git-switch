@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Card,
-  Empty,
   Select,
   Space,
   Spin,
@@ -13,7 +12,8 @@ import {
   Typography
 } from 'antd'
 import type { TableProps } from 'antd'
-import { RefreshCw, Eye, EyeOff } from 'lucide-react'
+import { RefreshCw, Eye, EyeOff, Search } from 'lucide-react'
+import TableEmpty from '../components/TableEmpty'
 import type { GitConfigEntry } from '../../../shared/types'
 import { describeKey } from '../lib/keyDocs'
 import { t } from '../lib/i18n'
@@ -187,7 +187,7 @@ export default function ConfigBrowserPage(): React.JSX.Element {
             dataSource={filtered}
             pagination={{ pageSize: 20, showSizeChanger: false, showTotal: (t) => `共 ${t} 项` }}
             locale={{
-              emptyText: <Empty description={loading ? '加载中…' : '暂无配置'} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              emptyText: <TableEmpty icon={<Search size={22} />} description={loading ? '加载中…' : '暂无配置'} />
             }}
           />
         </Spin>

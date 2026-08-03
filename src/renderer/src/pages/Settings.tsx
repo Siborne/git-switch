@@ -35,6 +35,7 @@ export default function SettingsPage(props: Props): React.JSX.Element {
                 onChange={(e) => onThemeChange(e.target.value as ThemePref)}
                 optionType="button"
                 buttonStyle="solid"
+                className="pill-radio"
                 options={[
                   { value: 'system', label: <><Monitor size={14} /> {t('跟随系统', 'System')}</> },
                   { value: 'dark', label: <><Moon size={14} /> {t('深色', 'Dark')}</> },
@@ -51,6 +52,7 @@ export default function SettingsPage(props: Props): React.JSX.Element {
                 onChange={(e) => onLangChange(e.target.value as 'system' | 'zh' | 'en')}
                 optionType="button"
                 buttonStyle="solid"
+                className="pill-radio"
                 options={[
                   { value: 'system', label: t('跟随系统', 'System') },
                   { value: 'zh', label: '中文' },
@@ -70,6 +72,7 @@ export default function SettingsPage(props: Props): React.JSX.Element {
             onChange={(e) => onCloseBehaviorChange(e.target.value)}
             optionType="button"
             buttonStyle="solid"
+            className="pill-radio"
             options={[
               { value: true, label: t('最小化到系统托盘', 'Minimize to tray') },
               { value: false, label: t('直接退出', 'Quit') }
