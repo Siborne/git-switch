@@ -1,0 +1,64 @@
+# Windows 版本构建与发布
+#
+# 触发方式：
+#   1. 推送 v* 标签（如 v0.1.0）→ 构建 Windows 安装包并发布 GitHub Release
+#   2. 手动触发（workflow_dispatch）→ 仅构建并上传 artifact，不发布 Release
+#
+# 产物：NSIS 安装包（Git Switch Setup <version>.exe）+ blockmap + latest.yml（供自动更新）
+
+name: Build & Release (Windows)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write # 创建 Release 与上传资产需要
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # tag 触发时，以 tag 版本覆盖 package.json version，保证产物版本与 Release 一致
+      - name: Sync package version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: npm pkg set version="${GITHUB_REF_NAME#v}"
+
+      - name: Build Windows installer
+        # --publish never：只构建，发布交由下方 action-gh-release 统一处理
+        run: npm run build:win -- --publish never
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: git-switch-windows
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+            dist/latest.yml
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.exe
+            dist/*.blockmap
+            dist/latest.yml
+          generate_release_notes: true
