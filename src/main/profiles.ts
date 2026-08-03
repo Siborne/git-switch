@@ -153,3 +153,77 @@ export async function applyProfileToRepo(id: string, cwd: string): Promise<{ bac
 export async function removeScopeItem(key: string, scope: GitScope, cwd?: string): Promise<void> {
   await unsetConfig(key, scope, cwd ? { cwd } : undefined)
 }
+
+/* ---------- 导入 / 导出 ---------- */
+
+/** 敏感配置项匹配（导出脱敏用） */
+const SENSITIVE_RE = /(proxy|extraheader|token|password|secret|credential|passwd)/i
+
+export interface ExportedProfile {
+  name: string
+  description?: string
+  items: ProfileItem[]
+}
+
+export interface ExportPayload {
+  version: 1
+  app: 'git-switch'
+  exportedAt: string
+  profiles: ExportedProfile[]
+}
+
+export interface ImportResult {
+  created: string[]
+  skipped: string[]
+}
+
+/** 导出全部配置集；includeSecrets=false 时敏感项（token/proxy 等）脱敏打码 */
+export async function exportProfiles(includeSecrets: boolean): Promise<ExportPayload> {
+  const profiles = await readProfiles()
+  return {
+    version: 1,
+    app: 'git-switch',
+    exportedAt: new Date().toISOString(),
+    profiles: profiles.map((p) => ({
+      name: p.name,
+      description: p.description,
+      items: includeSecrets
+        ? p.items.map((i) => ({ ...i }))
+        : p.items.map((i) => ({ key: i.key, value: SENSITIVE_RE.test(i.key) ? '••••' : i.value }))
+    }))
+  }
+}
+
+/** 从 JSON 文本导入配置集；同名配置集跳过并在结果中标注 */
+export async function importProfiles(jsonText: string): Promise<ImportResult> {
+  let payload: unknown
+  try {
+    payload = JSON.parse(jsonText)
+  } catch {
+    throw new Error('JSON 解析失败，请确认文件格式正确')
+  }
+  const obj = payload as Partial<ExportPayload>
+  if (obj.app !== 'git-switch' || !Array.isArray(obj.profiles)) {
+    throw new Error('不是有效的 Git Switch 导出文件（缺少 app/profiles 字段）')
+  }
+  const existing = await readProfiles()
+  const existingNames = new Set(existing.map((p) => p.name.toLowerCase()))
+  const result: ImportResult = { created: [], skipped: [] }
+
+  for (const p of obj.profiles) {
+    const name = p?.name?.trim()
+    if (!name) continue
+    validateInput({ name, description: p?.description, items: p?.items ?? [] })
+    if (existingNames.has(name.toLowerCase())) {
+      result.skipped.push(name)
+      continue
+    }
+    await createProfile({ name, description: p?.description, items: (p?.items ?? []).map((i) => ({ key: i.key, value: i.value })) })
+    existingNames.add(name.toLowerCase())
+    result.created.push(name)
+  }
+  if (result.created.length === 0 && result.skipped.length === 0) {
+    throw new Error('导出文件中没有可导入的配置集')
+  }
+  return result
+}

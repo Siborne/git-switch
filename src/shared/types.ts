@@ -105,6 +105,22 @@ export interface ApplyResult {
   applied: number
 }
 
+export interface ExportPayload {
+  version: 1
+  app: 'git-switch'
+  exportedAt: string
+  profiles: {
+    name: string
+    description?: string
+    items: ProfileItem[]
+  }[]
+}
+
+export interface ImportResult {
+  created: string[]
+  skipped: string[]
+}
+
 export interface ProfilesApi {
   list: () => Promise<Profile[]>
   get: (id: string) => Promise<Profile | null>
@@ -115,6 +131,14 @@ export interface ProfilesApi {
   applyGlobal: (id: string) => Promise<ApplyResult>
   /** 应用到仓库 local scope（写前备份） */
   applyRepo: (id: string, cwd: string) => Promise<ApplyResult>
+  /** 导出到 JSON 文件（弹保存对话框）；返回保存路径或 null（取消） */
+  exportFile: (includeSecrets: boolean) => Promise<string | null>
+  /** 导出到剪贴板 */
+  exportClipboard: (includeSecrets: boolean) => Promise<void>
+  /** 从 JSON 文件导入（弹打开对话框）；返回 null（取消）或导入结果 */
+  importFile: () => Promise<ImportResult | null>
+  /** 从剪贴板导入 */
+  importClipboard: () => Promise<ImportResult>
 }
 
 /* ---------- 其他 ---------- */

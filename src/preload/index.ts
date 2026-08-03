@@ -11,6 +11,7 @@ import type {
   GitScope,
   IncludeApi,
   IncludeRule,
+  ImportResult,
   LogEntry,
   LogsApi,
   OnboardingApi,
@@ -48,7 +49,12 @@ const profilesApi: ProfilesApi = {
   remove: (id: string): Promise<void> => ipcRenderer.invoke('profiles:delete', id) as Promise<void>,
   applyGlobal: (id: string): Promise<ApplyResult> => ipcRenderer.invoke('profiles:applyGlobal', id) as Promise<ApplyResult>,
   applyRepo: (id: string, cwd: string): Promise<ApplyResult> =>
-    ipcRenderer.invoke('profiles:applyRepo', id, cwd) as Promise<ApplyResult>
+    ipcRenderer.invoke('profiles:applyRepo', id, cwd) as Promise<ApplyResult>,
+  exportFile: (includeSecrets: boolean): Promise<string | null> =>
+    ipcRenderer.invoke('profiles:exportFile', includeSecrets) as Promise<string | null>,
+  exportClipboard: (includeSecrets: boolean): Promise<void> => ipcRenderer.invoke('profiles:exportClipboard', includeSecrets) as Promise<void>,
+  importFile: (): Promise<ImportResult | null> => ipcRenderer.invoke('profiles:importFile') as Promise<ImportResult | null>,
+  importClipboard: (): Promise<ImportResult> => ipcRenderer.invoke('profiles:importClipboard') as Promise<ImportResult>
 }
 
 const dialogApi: DialogApi = {

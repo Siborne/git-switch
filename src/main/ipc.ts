@@ -1,4 +1,5 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, clipboard } from 'electron'
+import { promises as fs } from 'fs'
 import {
   findGit,
   getConfig,
@@ -15,7 +16,9 @@ import {
   applyProfileToRepo,
   createProfile,
   deleteProfile,
+  exportProfiles,
   getProfile,
+  importProfiles,
   listProfiles,
   updateProfile
 } from './profiles'
@@ -58,6 +61,38 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('profiles:delete', (_event, id: string) => deleteProfile(id))
   ipcMain.handle('profiles:applyGlobal', (_event, id: string) => applyProfileToGlobal(id))
   ipcMain.handle('profiles:applyRepo', (_event, id: string, cwd: string) => applyProfileToRepo(id, cwd))
+
+  /* ---------- profiles 导入导出 ---------- */
+  ipcMain.handle('profiles:exportFile', async (_event, includeSecrets: boolean) => {
+    const payload = await exportProfiles(includeSecrets)
+    const result = await dialog.showSaveDialog({
+      title: '导出配置集',
+      defaultPath: `git-switch-profiles-${new Date().toISOString().slice(0, 10)}.json`,
+      filters: [{ name: 'JSON', extensions: ['json'] }]
+    })
+    if (result.canceled || !result.filePath) return null
+    await fs.writeFile(result.filePath, JSON.stringify(payload, null, 2), 'utf-8')
+    return result.filePath
+  })
+  ipcMain.handle('profiles:exportClipboard', async (_event, includeSecrets: boolean) => {
+    const payload = await exportProfiles(includeSecrets)
+    clipboard.writeText(JSON.stringify(payload, null, 2))
+  })
+  ipcMain.handle('profiles:importFile', async () => {
+    const result = await dialog.showOpenDialog({
+      title: '导入配置集',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      properties: ['openFile']
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    const text = await fs.readFile(result.filePaths[0], 'utf-8')
+    return importProfiles(text)
+  })
+  ipcMain.handle('profiles:importClipboard', async () => {
+    const text = clipboard.readText()
+    if (!text.trim()) throw new Error('剪贴板为空')
+    return importProfiles(text)
+  })
 
   /* ---------- dialog ---------- */
   ipcMain.handle('dialog:pickDirectory', async () => {

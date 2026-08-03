@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   Button,
   Card,
+  Checkbox,
+  Dropdown,
   Empty,
   Form,
   Input,
@@ -21,6 +23,7 @@ import {
   EditOutlined,
   FolderOpenOutlined,
   GlobalOutlined,
+  ImportOutlined,
   PlusOutlined
 } from '@ant-design/icons'
 import type { Profile, ProfileInput } from '../../../shared/types'
@@ -56,6 +59,9 @@ export default function ProfilesPage(): React.JSX.Element {
   const [repoTarget, setRepoTarget] = useState<Profile | null>(null)
   const [repoPath, setRepoPath] = useState('')
   const [applying, setApplying] = useState(false)
+  const [exportTarget, setExportTarget] = useState<'file' | 'clipboard' | null>(null)
+  const [exportSecrets, setExportSecrets] = useState(false)
+  const [exportBusy, setExportBusy] = useState(false)
   const [form] = Form.useForm<ProfileInput>()
   const [messageApi, contextHolder] = message.useMessage()
 
@@ -141,6 +147,62 @@ export default function ProfilesPage(): React.JSX.Element {
     await load()
   }
 
+  const doExport = async (): Promise<void> => {
+    if (!exportTarget) return
+    setExportBusy(true)
+    try {
+      if (exportTarget === 'file') {
+        const path = await window.gitSwitch.profiles.exportFile(exportSecrets)
+        if (path) messageApi.success(`已导出到 ${path}`)
+      } else {
+        await window.gitSwitch.profiles.exportClipboard(exportSecrets)
+        messageApi.success(exportSecrets ? '已复制到剪贴板（含敏感项明文）' : '已复制到剪贴板（敏感项已脱敏）')
+      }
+      setExportTarget(null)
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      setExportBusy(false)
+    }
+  }
+
+  const doImportFile = async (): Promise<void> => {
+    try {
+      const result = await window.gitSwitch.profiles.importFile()
+      if (result === null) return
+      reportImport(result)
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const doImportClipboard = async (): Promise<void> => {
+    try {
+      const result = await window.gitSwitch.profiles.importClipboard()
+      reportImport(result)
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const reportImport = (result: { created: string[]; skipped: string[] }): void => {
+    const parts: string[] = []
+    if (result.created.length > 0) parts.push(`成功导入 ${result.created.length} 个：${result.created.join('、')}`)
+    if (result.skipped.length > 0) parts.push(`跳过同名 ${result.skipped.length} 个：${result.skipped.join('、')}`)
+    messageApi.success(parts.join('；') || '没有可导入的配置集')
+    void load()
+  }
+
+  const importExportMenu = {
+    items: [
+      { key: 'export-file', label: '导出到文件…', onClick: () => setExportTarget('file') },
+      { key: 'export-clipboard', label: '导出到剪贴板', onClick: () => setExportTarget('clipboard') },
+      { type: 'divider' as const },
+      { key: 'import-file', label: '从文件导入…', onClick: () => void doImportFile() },
+      { key: 'import-clipboard', label: '从剪贴板导入', onClick: () => void doImportClipboard() }
+    ]
+  }
+
   const columns: TableProps<Profile>['columns'] = [
     {
       title: '配置集',
@@ -218,6 +280,9 @@ export default function ProfilesPage(): React.JSX.Element {
         </Typography.Title>
         <Typography.Text type="secondary">Profiles</Typography.Text>
         <div style={{ flex: 1 }} />
+        <Dropdown menu={importExportMenu}>
+          <Button icon={<ImportOutlined />}>导入 / 导出</Button>
+        </Dropdown>
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
           新建配置集
         </Button>
@@ -292,6 +357,24 @@ export default function ProfilesPage(): React.JSX.Element {
             </Form.List>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* 导出选项 */}
+      <Modal
+        title={exportTarget === 'file' ? '导出配置集到文件' : '导出配置集到剪贴板'}
+        open={exportTarget !== null}
+        onOk={() => void doExport()}
+        onCancel={() => setExportTarget(null)}
+        okText="导出"
+        confirmLoading={exportBusy}
+        width={460}
+      >
+        <Checkbox checked={exportSecrets} onChange={(e) => setExportSecrets(e.target.checked)}>
+          包含敏感项明文（token / proxy / credential 等）
+        </Checkbox>
+        <Typography.Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
+          默认不勾选：敏感配置项导出时脱敏为 ••••，适合分享/提交到仓库。
+        </Typography.Paragraph>
       </Modal>
 
       {/* 应用到项目 */}

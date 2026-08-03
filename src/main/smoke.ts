@@ -13,6 +13,7 @@ import { applyProfileToRepo, createProfile, deleteProfile, listProfiles } from '
 import { listBackups, restoreBackup } from './backup'
 import { runGit, setConfig } from './git'
 import { createIncludeRule, deleteIncludeRule, syncIncludeRules } from './includeIf'
+import { exportProfiles, importProfiles } from './profiles'
 
 function assert(cond: boolean, msg: string): void {
   if (!cond) throw new Error(`断言失败: ${msg}`)
@@ -137,6 +138,57 @@ export async function runSmoke(): Promise<void> {
     await deleteProfile(workProfile.id)
     delete process.env.GS_TEST_GLOBAL_CONFIG
     delete process.env.GS_TEST_PROFILE_DIR
+
+    // ============ 导入导出链路 ============
+    // 13. 脱敏导出
+    const expProfile = await createProfile({
+      name: '导出测试',
+      items: [
+        { key: 'user.name', value: 'Exp User' },
+        { key: 'http.proxy', value: 'http://user:pass@proxy:8080' }
+      ]
+    })
+    const payloadSecret = await exportProfiles(false)
+    const proxySecret = payloadSecret.profiles
+      .find((x) => x.name === '导出测试')
+      ?.items.find((i) => i.key === 'http.proxy')?.value
+    assert(proxySecret === '••••', `脱敏导出生效（proxy=${proxySecret}）`)
+
+    // 14. 明文导出
+    const payloadPlain = await exportProfiles(true)
+    const proxyPlain = payloadPlain.profiles
+      .find((x) => x.name === '导出测试')
+      ?.items.find((i) => i.key === 'http.proxy')?.value
+    assert(proxyPlain?.includes('pass') === true, '明文导出包含真实值')
+
+    // 15. 导入：新配置创建 + 同名跳过
+    const importResult = await importProfiles(
+      JSON.stringify({
+        version: 1,
+        app: 'git-switch',
+        exportedAt: new Date().toISOString(),
+        profiles: [
+          { name: '导入的新配置', items: [{ key: 'user.name', value: 'Imported' }] },
+          { name: '导出测试', items: [{ key: 'user.name', value: 'dup' }] }
+        ]
+      })
+    )
+    assert(importResult.created.length === 1 && importResult.skipped.length === 1, `导入结果：创建 ${importResult.created.length}、跳过 ${importResult.skipped.length}`)
+
+    // 16. 非法输入报错
+    let rejected = false
+    try {
+      await importProfiles('this is not json')
+    } catch {
+      rejected = true
+    }
+    assert(rejected, '非法 JSON 导入被拒绝')
+
+    // 17. 清理
+    await deleteProfile(expProfile.id)
+    const imported = (await listProfiles()).find((p) => p.name === '导入的新配置')
+    if (imported) await deleteProfile(imported.id)
+    assert((await listProfiles()).length === 0, '导入导出测试清理完成')
 
     console.log('[smoke] ALL PASS')
   } finally {
