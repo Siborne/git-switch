@@ -66,6 +66,24 @@ export default function SshKeysPage(): React.JSX.Element {
     void load()
   }, [load])
 
+  // 旧构建防护：preload 未暴露 ssh API 时给出明确提示（dev 模式改 preload 需重启应用）
+  if (!window.gitSwitch?.ssh) {
+    return (
+      <div className="page">
+        {contextHolder}
+        <Alert
+          type="warning"
+          showIcon
+          message={t('SSH 功能未加载', 'SSH feature not loaded')}
+          description={t(
+            '当前运行的应用版本过旧（preload 未包含 ssh API）。请完全退出并重新启动应用：dev 模式下重启 npm run dev（仅刷新页面无效），打包版请重新构建或安装最新版本。',
+            'The running app is outdated (preload lacks the ssh API). Fully quit and restart: restart `npm run dev` in dev mode (page refresh is not enough), or rebuild/reinstall the latest build.'
+          )}
+        />
+      </div>
+    )
+  }
+
   const copy = async (text: string, label: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(text)
