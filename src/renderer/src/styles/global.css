@@ -619,13 +619,13 @@ body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   cursor: pointer;
 }
 
 .profile-card .pc-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
 }
 
