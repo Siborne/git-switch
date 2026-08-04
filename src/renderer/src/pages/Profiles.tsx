@@ -274,27 +274,27 @@ export default function ProfilesPage(): React.JSX.Element {
                 <div className="pc-head">
                   <span className="pc-avatar">{(p.name || '?').charAt(0).toUpperCase()}</span>
                   <div className="pc-meta">
-                    <Space size={6}>
-                      <Typography.Text strong style={{ fontSize: 15 }}>
+                    <Space size={6} align="center">
+                      <Typography.Text strong style={{ fontSize: 15, lineHeight: 1 }}>
                         {p.name}
                       </Typography.Text>
                       {isDefault(p) && <Tag color="cyan" style={{ marginRight: 0 }}>使用中</Tag>}
                     </Space>
                     {p.description && (
-                      <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
+                      <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
                         {p.description}
                       </Typography.Text>
                     )}
                   </div>
                   <div className="pc-actions">
-                    <Button size="small" icon={<Pencil size={13} />} onClick={() => openEdit(p)} />
+                    <Button size="small" icon={<Pencil size={13} />} onClick={() => openEdit(p)} title="编辑" />
                     <Popconfirm
                       title={`删除配置集「${p.name}」？`}
                       okText="删除"
                       okButtonProps={{ danger: true }}
                       onConfirm={() => void remove(p)}
                     >
-                      <Button size="small" danger icon={<Trash2 size={13} />} />
+                      <Button size="small" danger icon={<Trash2 size={13} />} title="删除" />
                     </Popconfirm>
                   </div>
                 </div>
