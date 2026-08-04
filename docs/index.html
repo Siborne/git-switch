@@ -34,6 +34,7 @@
       --mono-bg: rgba(15, 23, 42, 0.05);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* 强制刷新提示：GitHub Pages 对 HTML 有缓存，更新后请 Ctrl+F5 */
     html { scroll-behavior: smooth; }
     body {
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
@@ -132,6 +133,7 @@
     .card:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-3px); background: color-mix(in srgb, var(--card) 80%, rgba(99, 102, 241, 0.08)); }
     .card .icon {
       width: 44px; height: 44px; border-radius: 12px; background: var(--grad);
+      color: #fff;
       display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
       box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
       transition: transform 0.25s ease;
@@ -310,32 +312,32 @@
       <p class="sec-sub reveal" data-i18n="features.sub">为经常切换 Git 身份的开发者打造,每一个写操作都有备份兜底。</p>
       <div class="grid">
         <div class="card reveal">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
           <h3 data-i18n="f1.title">多身份配置集</h3>
           <p data-i18n="f1.desc">工作 / 个人 / 开源多套身份 CRUD,常用项模板(签名密钥、代理等),一键应用到全局或指定仓库。</p>
         </div>
         <div class="card reveal">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 7h18M7 7v14M3 21h4"/><path d="M12 21V10M12 10l-3 3M12 10l3 3M21 21V10M21 10l-3 3M21 10l3 3"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M7 7v14M3 21h4"/><path d="M12 21V10M12 10l-3 3M12 10l3 3M21 21V10M21 10l-3 3M21 10l3 3"/></svg></div>
           <h3 data-i18n="f2.title">按目录自动切换</h3>
           <p data-i18n="f2.desc">目录 → 配置集映射(includeIf),进入 <code>D:/work</code> 自动加载工作身份,冲突检测 + 一键同步。</p>
         </div>
         <div class="card reveal">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></div>
           <h3 data-i18n="f3.title">配置浏览器</h3>
           <p data-i18n="f3.desc">浏览全部配置项,标注 system / global / local 来源,敏感项默认脱敏,悬停查看配置含义。</p>
         </div>
         <div class="card reveal">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M12 15l-4-4M12 15l4-4"/><path d="M4 19h16"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M12 15l-4-4M12 15l4-4"/><path d="M4 19h16"/></svg></div>
           <h3 data-i18n="f4.title">备份与回滚</h3>
           <p data-i18n="f4.desc">每次写操作前自动备份,备份点列表、行级 Diff、一键回滚,回滚前再保护 —— 全程可逆。</p>
         </div>
         <div class="card reveal">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M20 3v4h-4M4 21v-4h4"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M20 3v4h-4M4 21v-4h4"/></svg></div>
           <h3 data-i18n="f5.title">导入导出</h3>
           <p data-i18n="f5.desc">配置集导出 JSON / 剪贴板,敏感项可选脱敏,换机迁移一键完成。</p>
         </div>
         <div class="card reveal">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <h3 data-i18n="f6.title">SSH 密钥管理</h3>
           <p data-i18n="f6.desc">一键生成密钥对落盘 <code>~/.ssh</code>,复制公钥到 GitHub,可选写 ssh config 自动使用。</p>
         </div>
