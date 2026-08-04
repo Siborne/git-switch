@@ -41,6 +41,7 @@ const TEMPLATE_ITEMS: { key: string; label: string }[] = [
   { key: 'user.signingkey', label: 'user.signingkey · 签名密钥' },
   { key: 'commit.gpgsign', label: 'commit.gpgsign · 提交签名开关' },
   { key: 'http.proxy', label: 'http.proxy · HTTP 代理' },
+  { key: 'core.sshCommand', label: 'core.sshCommand · SSH 私钥指定' },
   { key: 'core.autocrlf', label: 'core.autocrlf · 换行符转换' },
   { key: 'init.defaultBranch', label: 'init.defaultBranch · 默认分支名' },
   { key: 'pull.rebase', label: 'pull.rebase · pull 策略' }

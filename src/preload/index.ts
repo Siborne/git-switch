@@ -20,6 +20,11 @@ import type {
   Profile,
   ProfileInput,
   ProfilesApi,
+  SshApi,
+  SshGenerateResult,
+  SshHostOptions,
+  SshKeyStatus,
+  SshKeyType,
   SyncResult,
   WindowControlsApi
 } from '../shared/types'
@@ -103,6 +108,16 @@ const includeApi: IncludeApi = {
   actual: (): Promise<ActualInclude[]> => invoke('include:actual')
 }
 
+const sshApi: SshApi = {
+  detect: (): Promise<boolean> => invoke('ssh:detect'),
+  listKeys: (): Promise<SshKeyStatus[]> => invoke('ssh:listKeys'),
+  generate: (type: SshKeyType, comment?: string, fileName?: string): Promise<SshGenerateResult> =>
+    invoke('ssh:generate', type, comment, fileName),
+  readConfig: (): Promise<string> => invoke('ssh:readConfig'),
+  configureHost: (host: string, opts?: SshHostOptions): Promise<string> => invoke('ssh:configureHost', host, opts),
+  removeHost: (host: string): Promise<string> => invoke('ssh:removeHost', host)
+}
+
 const windowControls: WindowControlsApi = {
   minimize: (): void => ipcRenderer.send('window:minimize'),
   toggleMaximize: (): void => ipcRenderer.send('window:toggleMaximize'),
@@ -132,6 +147,7 @@ const api = {
   logs: logsApi,
   onboarding: onboardingApi,
   include: includeApi,
+  ssh: sshApi,
   windowControls
 }
 

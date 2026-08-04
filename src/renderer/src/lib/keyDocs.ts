@@ -41,6 +41,9 @@ export const KEY_DOCS: Record<string, string> = {
   'credential.username': '默认凭据用户名',
   'credential.useHttpPath': '是否按 URL 路径区分凭据',
   'safe.directory': '信任的仓库目录（规避所有权检测）',
+  // SSH
+  'core.sshCommand': 'SSH 命令模板（如 ssh -i ~/.ssh/id_ed25519，指定 SSH 私钥）',
+  'gpg.ssh.defaultKeyCommand': 'SSH 签名默认密钥（from=SSH_AUTH_SOCK / 公钥路径）',
   // 仓库内部
   'core.repositoryformatversion': '仓库格式版本（勿手动修改）',
   'core.bare': '是否为裸仓库',

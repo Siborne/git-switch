@@ -14,6 +14,7 @@ import { listBackups, restoreBackup, diffBackup } from './backup'
 import { runGit, setConfig, getLastCommit } from './git'
 import { createIncludeRule, deleteIncludeRule, syncIncludeRules } from './includeIf'
 import { exportProfiles, importProfiles } from './profiles'
+import { generateKeyPair, listKeyStatus, readSshConfig, removeSshConfigHost, writeSshConfigHost } from './ssh'
 
 function assert(cond: boolean, msg: string): void {
   if (!cond) throw new Error(`断言失败: ${msg}`)
@@ -207,6 +208,51 @@ export async function runSmoke(): Promise<void> {
     const imported = (await listProfiles()).find((p) => p.name === '导入的新配置')
     if (imported) await deleteProfile(imported.id)
     assert((await listProfiles()).length === 0, '导入导出测试清理完成')
+
+    // ============ SSH 密钥链路（隔离测试，GS_TEST_SSH_DIR 重定向 ~/.ssh） ============
+    const testSshDir = join(base, 'ssh')
+    await fs.mkdir(testSshDir)
+    process.env.GS_TEST_SSH_DIR = testSshDir
+
+    // 18. 生成 ed25519 密钥对并落盘
+    const sk = await generateKeyPair({ type: 'ed25519', comment: 'smoke@test.dev' })
+    assert(sk.publicKey.startsWith('ssh-ed25519 '), 'ed25519 公钥生成成功')
+    assert((await fs.stat(sk.privatePath)).isFile(), '私钥已落盘')
+    assert((await fs.stat(sk.publicPath)).isFile(), '公钥已落盘')
+
+    // 19. 防覆盖：同名再次生成被拒绝
+    let sshRejected = false
+    try {
+      await generateKeyPair({ type: 'ed25519' })
+    } catch {
+      sshRejected = true
+    }
+    assert(sshRejected, '重复生成被拒绝（防覆盖）')
+
+    // 19.5 RSA 4096 + 自定义文件名
+    const rsa = await generateKeyPair({ type: 'rsa', fileName: 'id_custom' })
+    assert(rsa.publicKey.startsWith('ssh-rsa '), 'RSA 4096 公钥生成成功')
+    assert(rsa.privatePath.endsWith('id_custom'), '自定义文件名生效')
+
+    // 20. 写 ssh config（幂等）
+    const cfg1 = await writeSshConfigHost('github.com', { user: 'git', identityFile: sk.privatePath })
+    assert(cfg1.includes('Host github.com') && cfg1.includes(`IdentityFile ${sk.privatePath}`), 'ssh config 写入成功')
+    const cfg2 = await writeSshConfigHost('github.com', { user: 'git', identityFile: sk.privatePath })
+    assert((cfg2.match(/IdentityFile/g) ?? []).length === 1, '幂等重写不产生重复 IdentityFile')
+
+    // 21. listKeyStatus 识别密钥
+    const keyList = await listKeyStatus()
+    assert(keyList.length === 2, 'listKeyStatus 识别全部密钥对')
+    assert(keyList.some((k) => k.type === 'ed25519' && k.fileName === 'id_ed25519'), 'ed25519 密钥被识别')
+    assert(keyList.some((k) => k.type === 'rsa' && k.fileName === 'id_custom'), 'RSA 密钥被识别')
+
+    // 22. 删除 Host 块（撤销）
+    const cfg3 = await removeSshConfigHost('github.com')
+    assert(!cfg3.includes('Host github.com'), '撤销 Host 块成功')
+
+    // 23. 清理
+    delete process.env.GS_TEST_SSH_DIR
+    console.log('[smoke] ok - SSH 密钥链路验证通过')
 
     console.log('[smoke] ALL PASS')
   } finally {

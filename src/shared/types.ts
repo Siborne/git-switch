@@ -67,6 +67,7 @@ export interface GitSwitchApi {
   logs: LogsApi
   onboarding: OnboardingApi
   include: IncludeApi
+  ssh: SshApi
   windowControls: WindowControlsApi
 }
 
@@ -208,6 +209,53 @@ export interface WindowControlsApi {
   setCloseBehavior: (toTray: boolean) => void
   /** 监听最大化状态变化；返回取消订阅函数 */
   onMaximizedChange: (cb: (maximized: boolean) => void) => () => void
+}
+
+/* ---------- SSH 密钥管理 ---------- */
+
+export type SshKeyType = 'ed25519' | 'rsa'
+
+export interface SshKeyStatus {
+  /** 私钥文件名（不含扩展名），如 id_ed25519 */
+  fileName: string
+  privatePath: string
+  publicPath: string
+  type: SshKeyType | 'unknown'
+  /** base64 指纹（公钥第二段） */
+  fingerprint?: string
+  /** 公钥全文（含 ssh-xxx 前缀与 comment） */
+  publicKey?: string
+  /** 公钥尾部注释（默认 user@host） */
+  comment?: string
+}
+
+export interface SshGenerateResult {
+  privatePath: string
+  publicPath: string
+  /** 公钥全文（已 trim） */
+  publicKey: string
+}
+
+export interface SshHostOptions {
+  /** ssh config 的 User 行（如 git），缺省不写 */
+  user?: string
+  /** ssh config 的 IdentityFile 行 */
+  identityFile?: string
+}
+
+export interface SshApi {
+  /** Windows OpenSSH(ssh-keygen) 是否可用 */
+  detect: () => Promise<boolean>
+  /** 列出 ~/.ssh 下已有密钥对 */
+  listKeys: () => Promise<SshKeyStatus[]>
+  /** 生成密钥对并落盘；目标文件已存在则拒绝（防覆盖） */
+  generate: (type: SshKeyType, comment?: string, fileName?: string) => Promise<SshGenerateResult>
+  /** 读取 ~/.ssh/config 全文（不存在返回空串） */
+  readConfig: () => Promise<string>
+  /** 幂等写入/更新指定 Host 块，返回新 config 全文 */
+  configureHost: (host: string, opts?: SshHostOptions) => Promise<string>
+  /** 删除指定 Host 块（撤销配置），返回新 config 全文 */
+  removeHost: (host: string) => Promise<string>
 }
 
 /* ---------- includeIf 自动切换 ---------- */

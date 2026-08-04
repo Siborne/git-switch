@@ -9,6 +9,7 @@ import { registerDialogHandlers } from './dialog'
 import { registerLogsHandlers } from './logs'
 import { registerOnboardingHandlers } from './onboarding'
 import { registerIncludeHandlers } from './include'
+import { registerSshHandlers } from './ssh'
 import { registerWindowHandlers } from './window'
 
 export function registerIpcHandlers(): void {
@@ -19,6 +20,7 @@ export function registerIpcHandlers(): void {
   registerLogsHandlers()
   registerOnboardingHandlers()
   registerIncludeHandlers()
+  registerSshHandlers()
   registerWindowHandlers()
 }
 

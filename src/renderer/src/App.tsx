@@ -12,6 +12,7 @@ import {
   History,
   LayoutDashboard,
   Settings as SettingsIcon,
+  KeyRound,
   Sun,
   Moon,
   Monitor
@@ -23,6 +24,7 @@ import EffectiveViewPage from './pages/EffectiveView'
 import ConfigBrowserPage from './pages/ConfigBrowser'
 import BackupsPage from './pages/Backups'
 import IncludeIfPage from './pages/IncludeIf'
+import SshKeysPage from './pages/SshKeys'
 import DashboardPage from './pages/Dashboard'
 import SettingsPage from './pages/Settings'
 import OnboardingModal from './components/OnboardingModal'
@@ -36,7 +38,7 @@ import type { Profile } from '../../shared/types'
 
 const { Sider, Content } = Layout
 
-const menuKeys = ['dashboard', 'profiles', 'projects', 'effective', 'include', 'browser', 'backups', 'settings'] as const
+const menuKeys = ['dashboard', 'profiles', 'projects', 'effective', 'include', 'ssh', 'browser', 'backups', 'settings'] as const
 
 const pageLabels: Record<(typeof menuKeys)[number], [string, string]> = {
   dashboard: ['概览', 'Overview'],
@@ -44,6 +46,7 @@ const pageLabels: Record<(typeof menuKeys)[number], [string, string]> = {
   projects: ['项目配置', 'Projects'],
   effective: ['生效值', 'Effective'],
   include: ['自动切换', 'Auto Switch'],
+  ssh: ['SSH 密钥', 'SSH Keys'],
   browser: ['配置浏览器', 'Config Browser'],
   backups: ['备份与回滚', 'Backups'],
   settings: ['设置', 'Settings']
@@ -55,6 +58,7 @@ const menuIcons: Record<(typeof menuKeys)[number], React.ReactNode> = {
   projects: <FolderGit2 size={20} />,
   effective: <Layers size={20} />,
   include: <ArrowLeftRight size={20} />,
+  ssh: <KeyRound size={20} />,
   browser: <SlidersHorizontal size={20} />,
   backups: <History size={20} />,
   settings: <SettingsIcon size={20} />
@@ -66,6 +70,7 @@ const pages: Record<string, React.ReactNode> = {
   projects: <ProjectsPage />,
   effective: <EffectiveViewPage />,
   include: <IncludeIfPage />,
+  ssh: <SshKeysPage />,
   browser: <ConfigBrowserPage />,
   backups: <BackupsPage />
 }
