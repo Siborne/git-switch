@@ -242,7 +242,7 @@ body {
 
 .page {
   height: 100%;
-  padding: 24px 32px 32px;
+  padding: 16px 32px 32px;
   overflow-y: auto;
   animation: page-in 0.15s var(--ease);
 }

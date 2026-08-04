@@ -195,7 +195,7 @@ export default function SshKeysPage(): React.JSX.Element {
         )}
       </Typography.Paragraph>
 
-      <Space direction="vertical" size={16} style={{ width: '100%', maxWidth: 860 }}>
+      <Space direction="vertical" size={16} style={{ width: '100%', maxWidth: 1400 }}>
         {sshOk === false && (
           <Alert
             type="warning"

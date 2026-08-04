@@ -144,11 +144,11 @@ export default function EffectiveViewPage(): React.JSX.Element {
         key: 'final',
         width: 420,
         render: (_, g) => (
-          <Space size={6}>
-            <Typography.Text strong style={{ fontFamily: "'JetBrains Mono', monospace", color: '#60a5fa' }}>
+          <Space size={6} style={{ display: 'flex', flexWrap: 'nowrap' }}>
+            <Typography.Text strong style={{ fontFamily: "'JetBrains Mono', monospace", color: '#60a5fa', whiteSpace: 'nowrap' }}>
               {displayValue(g.key, g.finalValue)}
             </Typography.Text>
-            <Tag className={SCOPE_CLASS[g.finalScope] ?? ''} style={{ marginRight: 0 }}>
+            <Tag className={SCOPE_CLASS[g.finalScope] ?? ''} style={{ marginRight: 0, flexShrink: 0 }}>
               {g.finalScope}
             </Tag>
           </Space>

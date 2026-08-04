@@ -23,7 +23,7 @@ export default function SettingsPage(props: Props): React.JSX.Element {
         {t('主题与语言默认跟随系统，也可手动指定。', 'Theme and language follow the system by default; you can override them.')}
       </Typography.Paragraph>
 
-      <Space direction="vertical" size={16} style={{ width: '100%', maxWidth: 720 }}>
+      <Space direction="vertical" size={16} style={{ width: '100%', maxWidth: 1000 }}>
         <Card className="glass" title={t('外观', 'Appearance')}>
           <Space direction="vertical" size={18} style={{ width: '100%' }}>
             <div>
