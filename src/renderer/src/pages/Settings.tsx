@@ -87,7 +87,7 @@ export default function SettingsPage(props: Props): React.JSX.Element {
           <Space direction="vertical" size={8} style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography.Text type="secondary">Git Switch</Typography.Text>
-              <Typography.Text style={{ fontFamily: "'JetBrains Mono', monospace" }}>v0.1.0</Typography.Text>
+              <Typography.Text style={{ fontFamily: "'JetBrains Mono', monospace" }}>v0.2.0</Typography.Text>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography.Text type="secondary">Git</Typography.Text>

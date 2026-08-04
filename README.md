@@ -30,6 +30,7 @@
 | **项目配置** | 打开任意 Git 仓库:查看/编辑 local scope、分支、remote、最近提交;把配置集应用到项目 |
 | **生效值** | system → global → local 多层叠加的最终生效值,覆盖链可视化下钻,右键复制 |
 | **自动切换** | 目录 → 配置集映射(`includeIf gitdir:`),进入目录自动加载身份,冲突检测,一键同步到全局配置 |
+| **SSH 密钥** | 一键生成 ed25519/RSA4096 密钥对落盘 `~/.ssh`,展示/复制公钥,可选写 ssh config 让指定 host 自动使用,可改备注 |
 | **配置浏览器** | 全部配置项浏览,scope 来源标注,敏感项脱敏可切换明文,悬停显示配置项含义 |
 | **备份与回滚** | 每次写操作前自动备份,备份点列表、内容查看、行级 Diff、一键回滚(回滚前再保护) |
 | **导入导出** | 配置集导出 JSON(脱敏选项)/ 剪贴板,跨机迁移 |
@@ -46,8 +47,9 @@
 1. **启动**应用,首次启动引导自动弹出,检测 Git 环境并**预填你当前的全局身份**
 2. **创建配置集**:如「工作」(`work@company.com` + 公司签名密钥)、「个人」、「开源」
 3. **应用到全局**:点击「应用到全局」一键切换身份(覆盖同名项 + 保留无关项)
-4. **按目录自动切换**(可选):在「自动切换」页把 `D:/work` 映射到「工作」配置集,进入该目录后 `git config user.email` 自动生效
-5. 改错了?去「备份与回滚」一键回到任意历史备份点
+4. **SSH 密钥**(可选):在「SSH 密钥」页一键生成密钥对并复制公钥到 GitHub/GitLab,可配置 `~/.ssh/config` 自动使用
+5. **按目录自动切换**(可选):在「自动切换」页把 `D:/work` 映射到「工作」配置集,进入该目录后 `git config user.email` 自动生效
+6. 改错了?去「备份与回滚」一键回到任意历史备份点
 
 ## 键盘快捷键
 
@@ -94,6 +96,12 @@ npm run build:win   # 产出 dist/Git Switch Setup <version>.exe
 ## 自动构建与发布
 
 [`release-windows.yml`](.github/workflows/release-windows.yml) 在推送 `v*` 标签时自动在 Windows runner 上构建安装包并发布 GitHub Release(含 `latest.yml` 供自动更新);落地页见 [git-switch 官网](https://siborne.github.io/git-switch)。
+
+发版完整流程见 [AGENTS.md](AGENTS.md) 的 Release 章节。
+
+## 开发文档
+
+与 AI 协作的开发文档存放于 [`dev-docs/`](dev-docs/)(prd / tech / bugs / changelog,不随落地页公开部署);仓库与协作约定见 [AGENTS.md](AGENTS.md)。
 
 ## 冒烟测试
 
