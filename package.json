@@ -1,6 +1,6 @@
 {
   "name": "git-switch",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "本地 Git 配置切换工具：全局/项目级配置切换、按目录自动切换（includeIf）、配置浏览器与备份回滚",
   "main": "out/main/index.js",
   "author": "git-switch",
