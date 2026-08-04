@@ -3,6 +3,7 @@
  */
 import { safeHandle } from './helpers'
 import {
+  changeKeyComment,
   detectSshKeygen,
   generateKeyPair,
   listKeyStatus,
@@ -23,4 +24,5 @@ export function registerSshHandlers(): void {
     writeSshConfigHost(host, opts)
   )
   safeHandle('ssh:removeHost', (host: string) => removeSshConfigHost(host))
+  safeHandle('ssh:changeComment', (privatePath: string, comment: string) => changeKeyComment(privatePath, comment))
 }

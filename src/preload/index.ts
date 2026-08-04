@@ -115,7 +115,9 @@ const sshApi: SshApi = {
     invoke('ssh:generate', type, comment, fileName),
   readConfig: (): Promise<string> => invoke('ssh:readConfig'),
   configureHost: (host: string, opts?: SshHostOptions): Promise<string> => invoke('ssh:configureHost', host, opts),
-  removeHost: (host: string): Promise<string> => invoke('ssh:removeHost', host)
+  removeHost: (host: string): Promise<string> => invoke('ssh:removeHost', host),
+  changeComment: (privatePath: string, comment: string): Promise<{ publicKey: string; comment: string; backupPath: string }> =>
+    invoke('ssh:changeComment', privatePath, comment)
 }
 
 const windowControls: WindowControlsApi = {

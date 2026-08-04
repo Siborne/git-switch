@@ -256,6 +256,8 @@ export interface SshApi {
   configureHost: (host: string, opts?: SshHostOptions) => Promise<string>
   /** 删除指定 Host 块（撤销配置），返回新 config 全文 */
   removeHost: (host: string) => Promise<string>
+  /** 修改已有密钥的备注；修改前自动备份原私钥，返回新公钥与备份路径 */
+  changeComment: (privatePath: string, comment: string) => Promise<{ publicKey: string; comment: string; backupPath: string }>
 }
 
 /* ---------- includeIf 自动切换 ---------- */

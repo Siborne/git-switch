@@ -14,7 +14,7 @@ import {
   Typography,
   message
 } from 'antd'
-import { Copy, KeyRound, Plus, RefreshCw, Settings2, Eye } from 'lucide-react'
+import { Copy, KeyRound, Plus, RefreshCw, Settings2, Eye, Pencil } from 'lucide-react'
 import { t } from '../lib/i18n'
 import type { SshKeyStatus, SshKeyType } from '../../../shared/types'
 
@@ -44,6 +44,9 @@ export default function SshKeysPage(): React.JSX.Element {
   const [cfgText, setCfgText] = useState('')
   const [removeHost, setRemoveHost] = useState('')
   const [cfgBusy, setCfgBusy] = useState(false)
+  const [commentTarget, setCommentTarget] = useState<SshKeyStatus | null>(null)
+  const [commentDraft, setCommentDraft] = useState('')
+  const [commentBusy, setCommentBusy] = useState(false)
   const [messageApi, contextHolder] = message.useMessage()
 
   const load = useCallback(async () => {
@@ -133,6 +136,27 @@ export default function SshKeysPage(): React.JSX.Element {
     }
   }
 
+  const doChangeComment = async (): Promise<void> => {
+    if (!commentTarget) return
+    const c = commentDraft.trim()
+    if (!c) {
+      messageApi.error(t('备注不能为空', 'Comment is required'))
+      return
+    }
+    setCommentBusy(true)
+    try {
+      const r = await window.gitSwitch.ssh.changeComment(commentTarget.privatePath, c)
+      messageApi.success(`${t('备注已更新，原密钥已备份到', 'Comment updated; original key backed up to')} ${r.backupPath}`)
+      setCommentTarget(null)
+      setCommentDraft('')
+      void load()
+    } catch (e) {
+      messageApi.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      setCommentBusy(false)
+    }
+  }
+
   const previewLines = (): string[] => {
     const host = configForm.getFieldValue('host') || 'github.com'
     const user = configForm.getFieldValue('user')
@@ -199,14 +223,17 @@ export default function SshKeysPage(): React.JSX.Element {
               },
               {
                 title: t('操作', 'Actions'),
-                width: 300,
+                width: 380,
                 render: (_, k) => (
-                  <Space size={4}>
+                  <Space size={4} wrap>
                     <Button size="small" icon={<Copy size={13} />} disabled={!k.publicKey} onClick={() => void copy(k.publicKey ?? '', k.fileName)}>
                       {t('复制公钥', 'Copy pub')}
                     </Button>
                     <Button size="small" icon={<Eye size={13} />} disabled={!k.publicKey} onClick={() => setViewKey(k)}>
                       {t('查看', 'View')}
+                    </Button>
+                    <Button size="small" icon={<Pencil size={13} />} onClick={() => { setCommentTarget(k); setCommentDraft(k.comment ?? '') }}>
+                      {t('改备注', 'Edit')}
                     </Button>
                     <Button size="small" icon={<Settings2 size={13} />} onClick={() => { setConfigTarget(k); configForm.setFieldsValue({ host: 'github.com', user: 'git' }) }}>
                       {t('配置 ssh config', 'ssh config')}
@@ -353,6 +380,32 @@ export default function SshKeysPage(): React.JSX.Element {
         >
           {previewLines().join('\n')}
         </Typography.Text>
+      </Modal>
+
+      {/* ---------- 修改备注 ---------- */}
+      <Modal
+        open={commentTarget !== null}
+        title={`${commentTarget?.fileName ?? ''} — ${t('修改备注', 'Edit comment')}`}
+        onCancel={() => { setCommentTarget(null); setCommentDraft('') }}
+        onOk={() => void doChangeComment()}
+        okText={t('保存', 'Save')}
+        cancelText={t('取消', 'Cancel')}
+        confirmLoading={commentBusy}
+      >
+        <Input.TextArea
+          value={commentDraft}
+          onChange={(e) => setCommentDraft(e.target.value)}
+          placeholder="user@host"
+          maxLength={200}
+          showCount
+          autoSize={{ minRows: 2, maxRows: 4 }}
+        />
+        <Typography.Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0, fontSize: 12 }}>
+          {t(
+            '将更新私钥内嵌备注并重新生成公钥；修改前自动备份原私钥（备份文件可手动删除）。',
+            'Updates the embedded comment and regenerates the public key; the original private key is backed up first (backup file can be deleted manually).'
+          )}
+        </Typography.Paragraph>
       </Modal>
 
       {/* ---------- 管理 ssh config ---------- */}

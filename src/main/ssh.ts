@@ -6,7 +6,7 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { promises as fs } from 'fs'
 import { existsSync } from 'fs'
-import { join } from 'path'
+import { dirname, join } from 'path'
 import { appendLog } from './logger'
 import type { SshKeyStatus, SshKeyType } from '../shared/types'
 
@@ -263,4 +263,39 @@ export async function removeSshConfigHost(host: string): Promise<string> {
   const text = await persistConfig(updated)
   await appendLog('ssh-config-remove', { host: hostKey })
   return text
+}
+
+/**
+ * 修改已有密钥的备注（comment）：
+ * `ssh-keygen -c -C <comment> -f <key>` 同时更新私钥内嵌注释并重新生成 .pub。
+ * 修改前自动备份原私钥到 <private>.bak-<ts>，全程可回滚。
+ */
+export async function changeKeyComment(
+  privatePath: string,
+  comment: string
+): Promise<{ publicKey: string; comment: string; backupPath: string }> {
+  const keygen = await detectSshKeygen()
+  if (!keygen) {
+    throw new Error('未找到 ssh-keygen，请先启用 Windows OpenSSH 客户端（设置 → 应用 → 可选功能 → OpenSSH 客户端）')
+  }
+  // 路径约束：仅允许操作 ~/.ssh 下的密钥（防任意路径写）
+  if (dirname(privatePath) !== sshDir()) {
+    throw new Error('非法密钥路径：仅允许操作 ~/.ssh 下的密钥')
+  }
+  if (!existsSync(privatePath)) {
+    throw new Error(`私钥不存在: ${privatePath}`)
+  }
+  const newComment = comment.trim()
+  if (!newComment) throw new Error('备注不能为空')
+  if (newComment.length > 200) throw new Error('备注过长（最多 200 字符）')
+
+  // 修改前备份（.bak-<ts> 保留在同目录，可手动删除）
+  const ts = new Date().toISOString().replace(/[:.]/g, '-')
+  const backupPath = `${privatePath}.bak-${ts}`
+  await fs.copyFile(privatePath, backupPath)
+
+  await execFileAsync(keygen, ['-c', '-C', newComment, '-f', privatePath], { windowsHide: true, timeout: 30000 })
+  const publicKey = (await fs.readFile(`${privatePath}.pub`, 'utf-8')).trim()
+  await appendLog('ssh-comment-change', { path: privatePath, backup: backupPath })
+  return { publicKey, comment: newComment, backupPath }
 }

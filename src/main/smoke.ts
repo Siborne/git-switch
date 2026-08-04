@@ -14,7 +14,7 @@ import { listBackups, restoreBackup, diffBackup } from './backup'
 import { runGit, setConfig, getLastCommit } from './git'
 import { createIncludeRule, deleteIncludeRule, syncIncludeRules } from './includeIf'
 import { exportProfiles, importProfiles } from './profiles'
-import { generateKeyPair, listKeyStatus, readSshConfig, removeSshConfigHost, writeSshConfigHost } from './ssh'
+import { changeKeyComment, generateKeyPair, listKeyStatus, readSshConfig, removeSshConfigHost, writeSshConfigHost } from './ssh'
 
 function assert(cond: boolean, msg: string): void {
   if (!cond) throw new Error(`断言失败: ${msg}`)
@@ -249,6 +249,13 @@ export async function runSmoke(): Promise<void> {
     // 22. 删除 Host 块（撤销）
     const cfg3 = await removeSshConfigHost('github.com')
     assert(!cfg3.includes('Host github.com'), '撤销 Host 块成功')
+
+    // 22.5 修改备注
+    const cc = await changeKeyComment(sk.privatePath, '我的工作密钥')
+    assert(cc.publicKey.endsWith('我的工作密钥'), '修改备注后公钥尾部更新')
+    assert(cc.backupPath.startsWith(sk.privatePath), '修改前已备份原私钥')
+    const keyList2 = await listKeyStatus()
+    assert(keyList2.find((k) => k.fileName === 'id_ed25519')?.comment === '我的工作密钥', 'listKeyStatus 显示新备注')
 
     // 23. 清理
     delete process.env.GS_TEST_SSH_DIR
