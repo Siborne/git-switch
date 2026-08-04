@@ -120,7 +120,7 @@ export default function DashboardPage(): React.JSX.Element {
   return (
     <div className="page">
       <Spin spinning={loading}>
-        <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]} style={{ margin: 0 }}>
           {stats.map((s) => (
             <Col key={s.key} xs={24} sm={12} lg={8} xl={6}>
               <Card className="glass stat-card" styles={{ body: { padding: 0 } }}>
@@ -152,22 +152,29 @@ export default function DashboardPage(): React.JSX.Element {
           ))}
         </Row>
 
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Row gutter={[16, 16]} style={{ marginTop: 16, margin: '16px 0 0 0' }}>
           <Col xs={24} lg={14}>
             <Card className="glass" title={t('当前身份', 'Current Identity')} styles={{ body: { padding: 24 } }}>
               {userName || userEmail ? (
                 <Space direction="vertical" size={12} style={{ width: '100%' }}>
                   <Space size={12} align="center">
                     <span
-                      className="pc-avatar"
                       style={{
                         width: 48,
                         height: 48,
-                        fontSize: 20,
-                        background: 'linear-gradient(135deg, #3b82f6, #06b6d4)'
+                        borderRadius: 12,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 18,
+                        fontWeight: 600,
+                        color: '#fff',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+                        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                        flexShrink: 0
                       }}
                     >
-                      {(userName ?? userEmail ?? '?').charAt(0).toUpperCase()}
+                      <ShieldCheck size={24} />
                     </span>
                     <div>
                       <Typography.Title level={4} style={{ margin: 0 }}>

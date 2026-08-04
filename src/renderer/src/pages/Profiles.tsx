@@ -240,9 +240,9 @@ export default function ProfilesPage(): React.JSX.Element {
       </Typography.Paragraph>
 
       {loading ? (
-        <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]} style={{ margin: 0 }}>
           {Array.from({ length: 6 }).map((_, i) => (
-            <Col key={i} xs={24} md={12} xl={8}>
+            <Col key={i} xs={24} sm={24} md={12} lg={12} xl={8} xxl={6}>
               <Card className="glass">
                 <Skeleton active avatar paragraph={{ rows: 3 }} />
               </Card>
@@ -267,9 +267,9 @@ export default function ProfilesPage(): React.JSX.Element {
           </div>
         </Card>
       ) : (
-        <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]} style={{ margin: 0 }}>
           {profiles.map((p) => (
-            <Col key={p.id} xs={24} md={12} xl={8}>
+            <Col key={p.id} xs={24} sm={24} md={12} lg={12} xl={8} xxl={6}>
               <Card className="glass profile-card" styles={{ body: { padding: 0 } }}>
                 <div className="pc-head">
                   <span className="pc-avatar">{(p.name || '?').charAt(0).toUpperCase()}</span>
