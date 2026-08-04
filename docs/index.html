@@ -61,8 +61,10 @@
     .brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--grad); display: inline-flex; align-items: center; justify-content: center; }
     .brand .logo svg { width: 16px; height: 16px; }
     .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; color: var(--text-dim); }
-    .nav-links a { color: var(--text-dim); }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:not(.btn) { color: var(--text-dim); }
+    .nav-links a:not(.btn):hover { color: var(--text); }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .btn svg { flex-shrink: 0; }
     .icon-btn {
       background: transparent; border: 1px solid var(--card-border); color: var(--text-dim);
       width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 15px;
@@ -263,9 +265,12 @@
         <a href="#scenarios" class="hide-sm" data-i18n="nav.scenarios">场景</a>
         <a href="#quickstart" class="hide-sm" data-i18n="nav.quickstart">快速开始</a>
         <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer" data-i18n="nav.github">GitHub</a>
-        <button class="icon-btn" id="theme-btn" title="主题" aria-label="Theme">🖥</button>
+        <button class="icon-btn" id="theme-btn" title="主题" aria-label="Theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
         <button class="lang-btn" id="lang-btn" title="语言" aria-label="Language">中文</button>
-        <a class="btn btn-primary btn-sm" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer" data-i18n="nav.download">下载 Windows 版</a>
+        <a class="btn btn-primary btn-sm" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="nav.download">下载 Windows 版</span>
+        </a>
       </div>
     </div>
   </nav>
@@ -274,13 +279,19 @@
     <div class="blob blob-a"></div>
     <div class="blob blob-b"></div>
     <div class="wrap" style="display:flex;flex-direction:column;align-items:center;">
-      <div class="hero-badge hero-anim d1" data-i18n="badge">🪟 Windows 10 / 11 · 开源 · MIT License</div>
+      <div class="hero-badge hero-anim d1">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M3 5.5 10.5 4.3v7.2H3zM11.5 4.1 21 2.7v8.8h-9.5zM3 12.5h7.5v7.2L3 18.5zM11.5 12.5H21v8.8l-9.5-1.4z"/></svg>
+        <span data-i18n="badge">Windows 10 / 11 · 开源 · MIT License</span>
+      </div>
       <h1 class="hero-anim d2" data-i18n="hero.title">Git 身份,一键切换</h1>
       <p class="sub hero-anim d3" data-i18n="hero.sub">
         本地 Git 配置切换工具。多套身份(工作 / 个人 / 开源)一键切换、按目录自动加载、配置浏览器、备份回滚 —— 告别手改 <code>~/.gitconfig</code> 的日子。
       </p>
       <div class="hero-actions hero-anim d3">
-        <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer" data-i18n="hero.download">⬇ 下载 Windows 版</a>
+        <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="hero.download">下载 Windows 版</span>
+        </a>
         <a class="btn btn-ghost" href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer" data-i18n="hero.source">查看源码</a>
       </div>
       <div class="hero-meta hero-anim d4">
@@ -363,7 +374,10 @@
     <div class="wrap">
       <h2 class="sec-title reveal" data-i18n="preview.title">界面预览</h2>
       <p class="sec-sub reveal" data-i18n="preview.sub">深色玻璃拟态设计,主题 / 语言跟随系统。</p>
-      <div class="screenshot reveal" data-i18n="preview.placeholder">📸 截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)</div>
+      <div class="screenshot reveal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28" style="margin-bottom: 12px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <div data-i18n="preview.placeholder">截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)</div>
+      </div>
     </div>
   </section>
 
@@ -395,7 +409,10 @@
   <section class="cta wrap reveal">
     <h2 data-i18n="cta.title">现在就试试</h2>
     <p data-i18n="cta.sub">开源 · MIT License · Windows 10/11 免费使用</p>
-    <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer" data-i18n="hero.download">⬇ 下载 Windows 版</a>
+    <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span data-i18n="hero.download">下载 Windows 版</span>
+    </a>
   </section>
 
   <footer>
@@ -417,13 +434,13 @@
       'nav.quickstart': { zh: '快速开始', en: 'Quick Start' },
       'nav.github': { zh: 'GitHub', en: 'GitHub' },
       'nav.download': { zh: '下载 Windows 版', en: 'Download for Windows' },
-      'badge': { zh: '🪟 Windows 10 / 11 · 开源 · MIT License', en: '🪟 Windows 10 / 11 · Open Source · MIT License' },
+      'badge': { zh: 'Windows 10 / 11 · 开源 · MIT License', en: 'Windows 10 / 11 · Open Source · MIT License' },
       'hero.title': { zh: 'Git 身份,一键切换', en: 'Switch Git identities in one click' },
       'hero.sub': {
         zh: '本地 Git 配置切换工具。多套身份(工作 / 个人 / 开源)一键切换、按目录自动加载、配置浏览器、备份回滚 —— 告别手改 <code>~/.gitconfig</code> 的日子。',
         en: 'A local Git config switcher. Toggle between work / personal / OSS identities, auto-load by directory, browse configs, backup & rollback — stop hand-editing <code>~/.gitconfig</code>.'
       },
-      'hero.download': { zh: '⬇ 下载 Windows 版', en: '⬇ Download for Windows' },
+      'hero.download': { zh: '下载 Windows 版', en: 'Download for Windows' },
       'hero.source': { zh: '查看源码', en: 'View source' },
       'hero.latest': { zh: '最新版本', en: 'Latest version' },
       'hero.local': { zh: '纯本地运行,配置不出本机', en: 'Runs 100% locally' },
@@ -452,7 +469,7 @@
       's3.desc': { zh: '开源仓库用独立身份,避免把个人邮箱写进公开提交记录。', en: 'Use a dedicated identity for OSS so your personal email never leaks into public history.' },
       'preview.title': { zh: '界面预览', en: 'Preview' },
       'preview.sub': { zh: '深色玻璃拟态设计,主题 / 语言跟随系统。', en: 'Dark glassmorphism design; theme and language follow the system.' },
-      'preview.placeholder': { zh: '📸 截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)', en: '📸 Screenshot placeholder — install to explore the full UI (Dashboard / Profiles / Effective / Auto Switch / Backups)' },
+      'preview.placeholder': { zh: '截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)', en: 'Screenshot placeholder — install to explore the full UI (Dashboard / Profiles / Effective / Auto Switch / Backups)' },
       'qs.title': { zh: '快速开始', en: 'Quick Start' },
       'qs.sub': { zh: '四步完成身份切换,全程 GUI 操作。', en: 'Switch identities in four steps, all GUI.' },
       'qs1.title': { zh: '下载安装', en: 'Download & Install' },
@@ -506,7 +523,11 @@
     /* 主题偏好：system / dark / light */
     const THEME_KEY = 'gs-landing-theme'
     const THEME_ORDER = ['system', 'dark', 'light']
-    const THEME_ICON = { system: '🖥', dark: '🌙', light: '☀️' }
+    const THEME_ICON = {
+      system: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+      dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+      light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+    }
 
     function resolveTheme(pref) {
       if (pref === 'system') return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
