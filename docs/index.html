@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="system">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,6 +18,20 @@
       --accent-2: #38bdf8;
       --grad: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
       --radius: 16px;
+      --blob-a: rgba(56, 189, 248, 0.28);
+      --blob-b: rgba(99, 102, 241, 0.3);
+      --mono-bg: rgba(255, 255, 255, 0.06);
+    }
+    html[data-theme="light"] {
+      --bg: #f4f7fc;
+      --bg-soft: #eaeef7;
+      --card: rgba(15, 23, 42, 0.04);
+      --card-border: rgba(15, 23, 42, 0.1);
+      --text: #0f172a;
+      --text-dim: #5b6b84;
+      --blob-a: rgba(56, 189, 248, 0.18);
+      --blob-b: rgba(99, 102, 241, 0.2);
+      --mono-bg: rgba(15, 23, 42, 0.05);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -27,6 +41,7 @@
       color: var(--text);
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
+      transition: background 0.3s ease, color 0.3s ease;
     }
     a { color: var(--accent-2); text-decoration: none; }
     a:hover { text-decoration: underline; }
@@ -36,17 +51,31 @@
     nav {
       position: sticky; top: 0; z-index: 10;
       backdrop-filter: blur(14px);
-      background: rgba(11, 18, 32, 0.72);
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
       border-bottom: 1px solid var(--card-border);
+      transition: background 0.3s ease;
     }
     .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); }
     .brand:hover { text-decoration: none; }
     .brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--grad); display: inline-flex; align-items: center; justify-content: center; }
     .brand .logo svg { width: 16px; height: 16px; }
-    .nav-links { display: flex; align-items: center; gap: 22px; font-size: 14px; color: var(--text-dim); }
+    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; color: var(--text-dim); }
     .nav-links a { color: var(--text-dim); }
     .nav-links a:hover { color: var(--text); }
+    .icon-btn {
+      background: transparent; border: 1px solid var(--card-border); color: var(--text-dim);
+      width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-size: 15px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, color 0.2s, transform 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--accent-2); color: var(--text); transform: translateY(-1px); }
+    .lang-btn {
+      background: transparent; border: 1px solid var(--card-border); color: var(--text-dim);
+      height: 34px; padding: 0 12px; border-radius: 9px; cursor: pointer; font-size: 13px;
+      font-weight: 600; transition: border-color 0.2s, color 0.2s;
+    }
+    .lang-btn:hover { border-color: var(--accent-2); color: var(--text); }
 
     /* ---------- 按钮 ---------- */
     .btn {
@@ -56,14 +85,18 @@
       border: 1px solid transparent; cursor: pointer;
     }
     .btn:hover { text-decoration: none; transform: translateY(-1px); }
-    .btn-primary { background: var(--grad); color: #fff; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35); }
-    .btn-primary:hover { box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5); }
+    .btn-primary { background: var(--grad); color: #fff; }
     .btn-ghost { background: transparent; color: var(--text); border-color: var(--card-border); }
     .btn-ghost:hover { border-color: var(--accent-2); color: var(--accent-2); }
     .btn-sm { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
 
-    /* ---------- Hero ---------- */
-    .hero { padding: 96px 0 72px; text-align: center; }
+    /* ---------- Hero（全屏） ---------- */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; position: relative; overflow: hidden;
+      padding: 96px 24px 72px;
+    }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 14px; border-radius: 999px; font-size: 13px;
@@ -71,11 +104,15 @@
       border: 1px solid rgba(99, 102, 241, 0.3); margin-bottom: 24px;
     }
     .hero h1 {
-      font-size: clamp(36px, 6vw, 56px); font-weight: 800; letter-spacing: -1px; line-height: 1.15;
-      background: linear-gradient(135deg, #e0f2fe 0%, #a5b4fc 50%, #818cf8 100%);
+      font-size: clamp(38px, 6.5vw, 64px); font-weight: 800; letter-spacing: -1px; line-height: 1.12;
+      background: linear-gradient(135deg, #7dd3fc 0%, #a5b4fc 50%, #818cf8 100%);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .hero .sub { margin: 20px auto 36px; max-width: 640px; color: var(--text-dim); font-size: 18px; }
+    html[data-theme="light"] .hero h1 {
+      background: linear-gradient(135deg, #0284c7 0%, #4f46e5 55%, #6d28d9 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero .sub { margin: 20px auto 36px; max-width: 660px; color: var(--text-dim); font-size: 18px; }
     .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
     .hero-meta { margin-top: 30px; font-size: 13px; color: var(--text-dim); }
     .hero-meta span { margin: 0 10px; }
@@ -90,15 +127,21 @@
       background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
       padding: 26px 24px; transition: border-color .2s ease, transform .2s ease, background .2s ease;
     }
-    .card:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-3px); background: rgba(255, 255, 255, 0.07); }
+    .card:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-3px); background: color-mix(in srgb, var(--card) 80%, rgba(99, 102, 241, 0.08)); }
     .card .icon {
       width: 44px; height: 44px; border-radius: 12px; background: var(--grad);
       display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
       box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+      transition: transform 0.25s ease;
     }
+    .card:hover .icon { transform: scale(1.08) rotate(-4deg); }
     .card .icon svg { width: 22px; height: 22px; stroke: #fff; }
     .card h3 { font-size: 17px; margin-bottom: 8px; }
     .card p { color: var(--text-dim); font-size: 14px; }
+    .card code {
+      padding: 1px 6px; border-radius: 5px; font-size: 12.5px; color: var(--accent-2);
+      background: var(--mono-bg); font-family: "Cascadia Code", Consolas, monospace;
+    }
 
     /* ---------- 场景 ---------- */
     .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -114,15 +157,15 @@
     .scenario p { color: var(--text-dim); font-size: 14px; }
     .scenario code {
       display: inline-block; margin: 10px 2px 0; padding: 2px 8px; border-radius: 6px;
-      background: rgba(255, 255, 255, 0.07); font-size: 12.5px; color: var(--accent-2);
+      background: var(--mono-bg); font-size: 12.5px; color: var(--accent-2);
       font-family: "Cascadia Code", Consolas, monospace;
     }
 
     /* ---------- 截图占位 ---------- */
     .screenshot {
-      border: 1px dashed rgba(255, 255, 255, 0.18); border-radius: var(--radius);
+      border: 1px dashed var(--card-border); border-radius: var(--radius);
       padding: 56px 24px; text-align: center; color: var(--text-dim); font-size: 14px;
-      background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 14px, rgba(255,255,255,0.035) 14px, rgba(255,255,255,0.035) 28px);
+      background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--text) 3%, transparent), color-mix(in srgb, var(--text) 3%, transparent) 14px, color-mix(in srgb, var(--text) 5%, transparent) 14px, color-mix(in srgb, var(--text) 5%, transparent) 28px);
     }
 
     /* ---------- 快速开始 ---------- */
@@ -159,20 +202,18 @@
     .d3 { animation-delay: 0.31s; }
     .d4 { animation-delay: 0.44s; }
 
-    /* 背景光晕漂浮 */
-    .hero { position: relative; overflow: hidden; }
     .blob {
       position: absolute; border-radius: 50%; filter: blur(90px);
       pointer-events: none; z-index: -1;
     }
     .blob-a {
       width: 480px; height: 480px; top: -160px; left: -120px;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.28), transparent 70%);
+      background: radial-gradient(circle, var(--blob-a), transparent 70%);
       animation: floatA 14s ease-in-out infinite;
     }
     .blob-b {
       width: 520px; height: 520px; bottom: -200px; right: -140px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
+      background: radial-gradient(circle, var(--blob-b), transparent 70%);
       animation: floatB 18s ease-in-out infinite;
     }
     @keyframes floatA {
@@ -184,23 +225,17 @@
       50% { transform: translate(-70px, -30px) scale(1.08); }
     }
 
-    /* 滚动入场 */
     .reveal {
       opacity: 0; transform: translateY(28px);
       transition: opacity 0.6s ease, transform 0.6s ease;
     }
     .reveal.visible { opacity: 1; transform: none; }
 
-    /* 下载按钮呼吸光 */
     @keyframes glow {
       0%, 100% { box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35); }
       50% { box-shadow: 0 8px 34px rgba(56, 189, 248, 0.55); }
     }
     .btn-primary { animation: glow 3s ease-in-out infinite; }
-
-    /* 特性图标微动 */
-    .card:hover .icon { transform: scale(1.08) rotate(-4deg); }
-    .card .icon { transition: transform 0.25s ease; }
 
     /* ---------- 响应式 ---------- */
     @media (max-width: 900px) {
@@ -209,7 +244,7 @@
     @media (max-width: 600px) {
       .grid, .scenario-grid, .steps { grid-template-columns: 1fr; }
       .nav-links .hide-sm { display: none; }
-      .hero { padding: 64px 0 48px; }
+      .hero { min-height: 92vh; padding: 64px 20px 48px; }
     }
   </style>
 </head>
@@ -224,71 +259,74 @@
         Git Switch
       </a>
       <div class="nav-links">
-        <a href="#features" class="hide-sm">特性</a>
-        <a href="#scenarios" class="hide-sm">场景</a>
-        <a href="#quickstart" class="hide-sm">快速开始</a>
-        <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer">GitHub</a>
-        <a class="btn btn-primary btn-sm" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">下载 Windows 版</a>
+        <a href="#features" class="hide-sm" data-i18n="nav.features">特性</a>
+        <a href="#scenarios" class="hide-sm" data-i18n="nav.scenarios">场景</a>
+        <a href="#quickstart" class="hide-sm" data-i18n="nav.quickstart">快速开始</a>
+        <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer" data-i18n="nav.github">GitHub</a>
+        <button class="icon-btn" id="theme-btn" title="主题" aria-label="Theme">🖥</button>
+        <button class="lang-btn" id="lang-btn" title="语言" aria-label="Language">中文</button>
+        <a class="btn btn-primary btn-sm" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer" data-i18n="nav.download">下载 Windows 版</a>
       </div>
     </div>
   </nav>
 
-  <header class="hero wrap" id="top">
+  <header class="hero" id="top">
     <div class="blob blob-a"></div>
     <div class="blob blob-b"></div>
-    <div class="hero-badge hero-anim d1">🪟 Windows 10 / 11 · 开源 · MIT License</div>
-    <h1 class="hero-anim d2">Git 身份,一键切换</h1>
-    <p class="sub hero-anim d3">
-      本地 Git 配置切换工具。多套身份(工作 / 个人 / 开源)一键切换、
-      按目录自动加载、配置浏览器、备份回滚 —— 告别手改 <code>~/.gitconfig</code> 的日子。
-    </p>
-    <div class="hero-actions hero-anim d3">
-      <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">⬇ 下载 Windows 版</a>
-      <a class="btn btn-ghost" href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer">查看源码</a>
-    </div>
-    <div class="hero-meta hero-anim d4">
-      <span>最新版本 <b id="version">v0.2.0</b></span>
-      <span>·</span>
-      <span>纯本地运行,配置不出本机</span>
-      <span>·</span>
-      <span>写前自动备份,全程可回滚</span>
+    <div class="wrap" style="display:flex;flex-direction:column;align-items:center;">
+      <div class="hero-badge hero-anim d1" data-i18n="badge">🪟 Windows 10 / 11 · 开源 · MIT License</div>
+      <h1 class="hero-anim d2" data-i18n="hero.title">Git 身份,一键切换</h1>
+      <p class="sub hero-anim d3" data-i18n="hero.sub">
+        本地 Git 配置切换工具。多套身份(工作 / 个人 / 开源)一键切换、按目录自动加载、配置浏览器、备份回滚 —— 告别手改 <code>~/.gitconfig</code> 的日子。
+      </p>
+      <div class="hero-actions hero-anim d3">
+        <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer" data-i18n="hero.download">⬇ 下载 Windows 版</a>
+        <a class="btn btn-ghost" href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer" data-i18n="hero.source">查看源码</a>
+      </div>
+      <div class="hero-meta hero-anim d4">
+        <span><span data-i18n="hero.latest">最新版本</span> <b id="version">v0.2.0</b></span>
+        <span>·</span>
+        <span data-i18n="hero.local">纯本地运行,配置不出本机</span>
+        <span>·</span>
+        <span data-i18n="hero.backup">写前自动备份,全程可回滚</span>
+      </div>
     </div>
   </header>
 
   <section id="features">
     <div class="wrap">
-      <h2 class="sec-title">核心功能</h2>
-      <p class="sec-sub">为经常切换 Git 身份的开发者打造,每一个写操作都有备份兜底。</p>
+      <h2 class="sec-title reveal" data-i18n="features.title">核心功能</h2>
+      <p class="sec-sub reveal" data-i18n="features.sub">为经常切换 Git 身份的开发者打造,每一个写操作都有备份兜底。</p>
       <div class="grid">
         <div class="card reveal">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></div>
-          <h3>多身份配置集</h3>
-          <p>工作 / 个人 / 开源多套身份 CRUD,常用项模板(签名密钥、代理等),一键应用到全局或指定仓库。</p>
+          <h3 data-i18n="f1.title">多身份配置集</h3>
+          <p data-i18n="f1.desc">工作 / 个人 / 开源多套身份 CRUD,常用项模板(签名密钥、代理等),一键应用到全局或指定仓库。</p>
         </div>
         <div class="card reveal">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 7h18M7 7v14M3 21h4"/><path d="M12 21V10M12 10l-3 3M12 10l3 3M21 21V10M21 10l-3 3M21 10l3 3"/></svg></div>
-          <h3>按目录自动切换</h3>
-          <p>目录 → 配置集映射(includeIf),进入 <code>D:/work</code> 自动加载工作身份,冲突检测 + 一键同步。</p>
+          <h3 data-i18n="f2.title">按目录自动切换</h3>
+          <p data-i18n="f2.desc">目录 → 配置集映射(includeIf),进入 <code>D:/work</code> 自动加载工作身份,冲突检测 + 一键同步。</p>
         </div>
         <div class="card reveal">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></div>
-          <h3>配置浏览器</h3>
-          <p>浏览全部配置项,标注 system / global / local 来源,敏感项默认脱敏,悬停查看配置含义。</p>
+          <h3 data-i18n="f3.title">配置浏览器</h3>
+          <p data-i18n="f3.desc">浏览全部配置项,标注 system / global / local 来源,敏感项默认脱敏,悬停查看配置含义。</p>
         </div>
         <div class="card reveal">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M12 15l-4-4M12 15l4-4"/><path d="M4 19h16"/></svg></div>
-          <h3>备份与回滚</h3>
-          <p>每次写操作前自动备份,备份点列表、行级 Diff、一键回滚,回滚前再保护 —— 全程可逆。</p>
+          <h3 data-i18n="f4.title">备份与回滚</h3>
+          <p data-i18n="f4.desc">每次写操作前自动备份,备份点列表、行级 Diff、一键回滚,回滚前再保护 —— 全程可逆。</p>
         </div>
         <div class="card reveal">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M20 3v4h-4M4 21v-4h4"/></svg></div>
-          <h3>导入导出</h3>
-          <p>配置集导出 JSON / 剪贴板,敏感项可选脱敏,换机迁移一键完成。</p>
+          <h3 data-i18n="f5.title">导入导出</h3>
+          <p data-i18n="f5.desc">配置集导出 JSON / 剪贴板,敏感项可选脱敏,换机迁移一键完成。</p>
         </div>
         <div class="card reveal">
           <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-          <h3>系统托盘</h3>
-          <p>托盘一键应用配置集,全局身份实时显示;关闭窗口最小化到托盘,不打断工作流。</p>
+          <h3 data-i18n="f6.title">SSH 密钥管理</h3>
+          <p data-i18n="f6.desc">一键生成密钥对落盘 <code>~/.ssh</code>,复制公钥到 GitHub,可选写 ssh config 自动使用。</p>
         </div>
       </div>
     </div>
@@ -296,24 +334,24 @@
 
   <section id="scenarios" style="background: var(--bg-soft);">
     <div class="wrap">
-      <h2 class="sec-title">典型场景</h2>
-      <p class="sec-sub">身兼多职的开发者,再也不用记着切换身份。</p>
+      <h2 class="sec-title reveal" data-i18n="scenarios.title">典型场景</h2>
+      <p class="sec-sub reveal" data-i18n="scenarios.sub">身兼多职的开发者,再也不用记着切换身份。</p>
       <div class="scenario-grid">
         <div class="scenario reveal">
-          <h3><span class="dot work"></span>工作仓库</h3>
-          <p>公司邮箱 + 提交签名密钥 + 公司代理。进入工作目录自动生效,commit 永远署名正确。</p>
+          <h3><span class="dot work"></span><span data-i18n="s1.title">工作仓库</span></h3>
+          <p data-i18n="s1.desc">公司邮箱 + 提交签名密钥 + 公司代理。进入工作目录自动生效,commit 永远署名正确。</p>
           <code>user.email = work@company.com</code>
           <code>user.signingkey = 4A5B…</code>
         </div>
         <div class="scenario reveal">
-          <h3><span class="dot personal"></span>个人项目</h3>
-          <p>私人邮箱与 GPG 签名,和公司配置完全隔离,互不污染。</p>
+          <h3><span class="dot personal"></span><span data-i18n="s2.title">个人项目</span></h3>
+          <p data-i18n="s2.desc">私人邮箱与 GPG 签名,和公司配置完全隔离,互不污染。</p>
           <code>user.email = me@home.dev</code>
           <code>commit.gpgsign = true</code>
         </div>
         <div class="scenario reveal">
-          <h3><span class="dot oss"></span>开源贡献</h3>
-          <p>开源仓库用独立身份,避免把个人邮箱写进公开提交记录。</p>
+          <h3><span class="dot oss"></span><span data-i18n="s3.title">开源贡献</span></h3>
+          <p data-i18n="s3.desc">开源仓库用独立身份,避免把个人邮箱写进公开提交记录。</p>
           <code>user.email = oss@github.dev</code>
           <code>user.name = my-bot-name</code>
         </div>
@@ -323,56 +361,185 @@
 
   <section>
     <div class="wrap">
-      <h2 class="sec-title">界面预览</h2>
-      <p class="sec-sub">深色玻璃拟态设计,主题 / 语言跟随系统。</p>
-      <div class="screenshot reveal">📸 截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)</div>
+      <h2 class="sec-title reveal" data-i18n="preview.title">界面预览</h2>
+      <p class="sec-sub reveal" data-i18n="preview.sub">深色玻璃拟态设计,主题 / 语言跟随系统。</p>
+      <div class="screenshot reveal" data-i18n="preview.placeholder">📸 截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)</div>
     </div>
   </section>
 
   <section id="quickstart" style="background: var(--bg-soft);">
     <div class="wrap">
-      <h2 class="sec-title">快速开始</h2>
-      <p class="sec-sub">四步完成身份切换,全程 GUI 操作。</p>
+      <h2 class="sec-title reveal" data-i18n="qs.title">快速开始</h2>
+      <p class="sec-sub reveal" data-i18n="qs.sub">四步完成身份切换,全程 GUI 操作。</p>
       <div class="steps">
         <div class="step reveal">
-          <h3>下载安装</h3>
-          <p>从 Releases 下载安装包,双击安装;依赖 Git for Windows,首次启动自动检测。</p>
+          <h3 data-i18n="qs1.title">下载安装</h3>
+          <p data-i18n="qs1.desc">从 Releases 下载安装包,双击安装;依赖 Git for Windows,首次启动自动检测。</p>
         </div>
         <div class="step reveal">
-          <h3>创建配置集</h3>
-          <p>引导自动预填当前全局身份;再为工作、个人分别建一套配置集。</p>
+          <h3 data-i18n="qs2.title">创建配置集</h3>
+          <p data-i18n="qs2.desc">引导自动预填当前全局身份;再为工作、个人分别建一套配置集。</p>
         </div>
         <div class="step reveal">
-          <h3>一键应用</h3>
-          <p>全局或仓库级应用:覆盖同名项 + 保留无关项,写前自动备份。</p>
+          <h3 data-i18n="qs3.title">一键应用</h3>
+          <p data-i18n="qs3.desc">全局或仓库级应用:覆盖同名项 + 保留无关项,写前自动备份。</p>
         </div>
         <div class="step reveal">
-          <h3>目录自动切换</h3>
-          <p>把目录映射到配置集,进入目录即生效;改坏了随时回滚。</p>
+          <h3 data-i18n="qs4.title">目录自动切换</h3>
+          <p data-i18n="qs4.desc">把目录映射到配置集,进入目录即生效;改坏了随时回滚。</p>
         </div>
       </div>
     </div>
   </section>
 
   <section class="cta wrap reveal">
-    <h2>现在就试试</h2>
-    <p>开源 · MIT License · Windows 10/11 免费使用</p>
-    <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer">⬇ 下载 Windows 版</a>
+    <h2 data-i18n="cta.title">现在就试试</h2>
+    <p data-i18n="cta.sub">开源 · MIT License · Windows 10/11 免费使用</p>
+    <a class="btn btn-primary" href="https://github.com/Siborne/git-switch/releases/latest" target="_blank" rel="noreferrer" data-i18n="hero.download">⬇ 下载 Windows 版</a>
   </section>
 
   <footer>
     <div class="wrap foot-inner">
       <div>© <span id="year">2026</span> <a href="https://github.com/Siborne" target="_blank" rel="noreferrer">Siborne</a> · MIT License</div>
       <div>
-        <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://github.com/Siborne/git-switch" target="_blank" rel="noreferrer" data-i18n="nav.github">GitHub</a>
         &nbsp;·&nbsp;
-        <a href="https://github.com/Siborne/git-switch/releases" target="_blank" rel="noreferrer">Releases</a>
+        <a href="https://github.com/Siborne/git-switch/releases" target="_blank" rel="noreferrer" data-i18n="footer.releases">Releases</a>
       </div>
     </div>
   </footer>
 
   <script>
-    // 滚动入场：元素进入视口时淡入上浮（交错延迟，移动端禁用动效）
+    /* ================= 多语言 ================= */
+    const I18N = {
+      'nav.features': { zh: '特性', en: 'Features' },
+      'nav.scenarios': { zh: '场景', en: 'Scenarios' },
+      'nav.quickstart': { zh: '快速开始', en: 'Quick Start' },
+      'nav.github': { zh: 'GitHub', en: 'GitHub' },
+      'nav.download': { zh: '下载 Windows 版', en: 'Download for Windows' },
+      'badge': { zh: '🪟 Windows 10 / 11 · 开源 · MIT License', en: '🪟 Windows 10 / 11 · Open Source · MIT License' },
+      'hero.title': { zh: 'Git 身份,一键切换', en: 'Switch Git identities in one click' },
+      'hero.sub': {
+        zh: '本地 Git 配置切换工具。多套身份(工作 / 个人 / 开源)一键切换、按目录自动加载、配置浏览器、备份回滚 —— 告别手改 <code>~/.gitconfig</code> 的日子。',
+        en: 'A local Git config switcher. Toggle between work / personal / OSS identities, auto-load by directory, browse configs, backup & rollback — stop hand-editing <code>~/.gitconfig</code>.'
+      },
+      'hero.download': { zh: '⬇ 下载 Windows 版', en: '⬇ Download for Windows' },
+      'hero.source': { zh: '查看源码', en: 'View source' },
+      'hero.latest': { zh: '最新版本', en: 'Latest version' },
+      'hero.local': { zh: '纯本地运行,配置不出本机', en: 'Runs 100% locally' },
+      'hero.backup': { zh: '写前自动备份,全程可回滚', en: 'Auto-backup, fully reversible' },
+      'features.title': { zh: '核心功能', en: 'Core Features' },
+      'features.sub': { zh: '为经常切换 Git 身份的开发者打造,每一个写操作都有备份兜底。', en: 'Built for developers who switch Git identities often — every write is backed up.' },
+      'f1.title': { zh: '多身份配置集', en: 'Multiple Identity Profiles' },
+      'f1.desc': { zh: '工作 / 个人 / 开源多套身份 CRUD,常用项模板(签名密钥、代理等),一键应用到全局或指定仓库。', en: 'CRUD for work / personal / OSS identities with templates (signing keys, proxies). Apply to global or any repo in one click.' },
+      'f2.title': { zh: '按目录自动切换', en: 'Auto-Switch by Directory' },
+      'f2.desc': { zh: '目录 → 配置集映射(includeIf),进入 <code>D:/work</code> 自动加载工作身份,冲突检测 + 一键同步。', en: 'Map folders to profiles via includeIf — enter <code>D:/work</code> and the work identity loads automatically, with conflict detection.' },
+      'f3.title': { zh: '配置浏览器', en: 'Config Browser' },
+      'f3.desc': { zh: '浏览全部配置项,标注 system / global / local 来源,敏感项默认脱敏,悬停查看配置含义。', en: 'Browse every config entry with its system / global / local origin. Secrets masked by default; hover for meanings.' },
+      'f4.title': { zh: '备份与回滚', en: 'Backup & Rollback' },
+      'f4.desc': { zh: '每次写操作前自动备份,备份点列表、行级 Diff、一键回滚,回滚前再保护 —— 全程可逆。', en: 'Auto-backup before every write, line-level diffs, one-click rollback with protection — fully reversible.' },
+      'f5.title': { zh: '导入导出', en: 'Import / Export' },
+      'f5.desc': { zh: '配置集导出 JSON / 剪贴板,敏感项可选脱敏,换机迁移一键完成。', en: 'Export profiles to JSON or clipboard (optionally masked). Migrate machines in one click.' },
+      'f6.title': { zh: 'SSH 密钥管理', en: 'SSH Key Manager' },
+      'f6.desc': { zh: '一键生成密钥对落盘 <code>~/.ssh</code>,复制公钥到 GitHub,可选写 ssh config 自动使用。', en: 'Generate key pairs into <code>~/.ssh</code>, copy the public key to GitHub, optionally wire up ssh config.' },
+      'scenarios.title': { zh: '典型场景', en: 'Typical Scenarios' },
+      'scenarios.sub': { zh: '身兼多职的开发者,再也不用记着切换身份。', en: 'For multi-role developers who never want to remember switching again.' },
+      's1.title': { zh: '工作仓库', en: 'Work Repos' },
+      's1.desc': { zh: '公司邮箱 + 提交签名密钥 + 公司代理。进入工作目录自动生效,commit 永远署名正确。', en: 'Company email + signing key + proxy. Auto-applied in work directories; every commit signed correctly.' },
+      's2.title': { zh: '个人项目', en: 'Personal Projects' },
+      's2.desc': { zh: '私人邮箱与 GPG 签名,和公司配置完全隔离,互不污染。', en: 'Personal email and GPG signing, fully isolated from work config.' },
+      's3.title': { zh: '开源贡献', en: 'Open Source' },
+      's3.desc': { zh: '开源仓库用独立身份,避免把个人邮箱写进公开提交记录。', en: 'Use a dedicated identity for OSS so your personal email never leaks into public history.' },
+      'preview.title': { zh: '界面预览', en: 'Preview' },
+      'preview.sub': { zh: '深色玻璃拟态设计,主题 / 语言跟随系统。', en: 'Dark glassmorphism design; theme and language follow the system.' },
+      'preview.placeholder': { zh: '📸 截图占位 —— 安装后即可体验完整界面(概览 / 配置集 / 生效值 / 自动切换 / 备份回滚)', en: '📸 Screenshot placeholder — install to explore the full UI (Dashboard / Profiles / Effective / Auto Switch / Backups)' },
+      'qs.title': { zh: '快速开始', en: 'Quick Start' },
+      'qs.sub': { zh: '四步完成身份切换,全程 GUI 操作。', en: 'Switch identities in four steps, all GUI.' },
+      'qs1.title': { zh: '下载安装', en: 'Download & Install' },
+      'qs1.desc': { zh: '从 Releases 下载安装包,双击安装;依赖 Git for Windows,首次启动自动检测。', en: 'Grab the installer from Releases; requires Git for Windows, auto-detected on first launch.' },
+      'qs2.title': { zh: '创建配置集', en: 'Create Profiles' },
+      'qs2.desc': { zh: '引导自动预填当前全局身份;再为工作、个人分别建一套配置集。', en: 'Onboarding pre-fills your current identity; add work and personal profiles.' },
+      'qs3.title': { zh: '一键应用', en: 'Apply in One Click' },
+      'qs3.desc': { zh: '全局或仓库级应用:覆盖同名项 + 保留无关项,写前自动备份。', en: 'Apply globally or per-repo: overwrite same keys, keep the rest, auto-backup first.' },
+      'qs4.title': { zh: '目录自动切换', en: 'Auto-Switch Directories' },
+      'qs4.desc': { zh: '把目录映射到配置集,进入目录即生效;改坏了随时回滚。', en: 'Map folders to profiles and it just works; rollback anytime.' },
+      'cta.title': { zh: '现在就试试', en: 'Try It Now' },
+      'cta.sub': { zh: '开源 · MIT License · Windows 10/11 免费使用', en: 'Open source · MIT License · Free on Windows 10/11' },
+      'footer.releases': { zh: 'Releases', en: 'Releases' }
+    }
+
+    /* 语言偏好：system / zh / en */
+    const LANG_KEY = 'gs-landing-lang'
+    const themeBtn = document.getElementById('theme-btn')
+    const langBtn = document.getElementById('lang-btn')
+    const LANG_ORDER = ['system', 'zh', 'en']
+    const LANG_LABEL = { system: { zh: '随系统', en: 'Auto' }, zh: '中文', en: 'EN' }
+
+    function resolveLang(pref) {
+      if (pref === 'system') return (navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en'
+      return pref
+    }
+    function getLangPref() {
+      const v = localStorage.getItem(LANG_KEY)
+      return LANG_ORDER.includes(v) ? v : 'system'
+    }
+    function applyLang(pref) {
+      const lang = resolveLang(pref)
+      document.documentElement.lang = lang
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const k = el.getAttribute('data-i18n')
+        const t = I18N[k]
+        if (t && t[lang]) el.innerHTML = t[lang]
+      })
+      langBtn.textContent = LANG_LABEL[pref][lang] || LANG_LABEL[pref].zh
+      langBtn.title = pref === 'system'
+        ? (lang === 'zh' ? '语言：随系统（中文）' : 'Language: System (English)')
+        : (lang === 'zh' ? '切换语言' : 'Switch language')
+      langBtn.setAttribute('aria-label', langBtn.title)
+    }
+    function cycleLang() {
+      const next = LANG_ORDER[(LANG_ORDER.indexOf(getLangPref()) + 1) % LANG_ORDER.length]
+      localStorage.setItem(LANG_KEY, next)
+      applyLang(next)
+    }
+
+    /* 主题偏好：system / dark / light */
+    const THEME_KEY = 'gs-landing-theme'
+    const THEME_ORDER = ['system', 'dark', 'light']
+    const THEME_ICON = { system: '🖥', dark: '🌙', light: '☀️' }
+
+    function resolveTheme(pref) {
+      if (pref === 'system') return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      return pref
+    }
+    function getThemePref() {
+      const v = localStorage.getItem(THEME_KEY)
+      return THEME_ORDER.includes(v) ? v : 'system'
+    }
+    function applyTheme(pref) {
+      document.documentElement.dataset.theme = resolveTheme(pref)
+      themeBtn.textContent = THEME_ICON[pref]
+      const zhName = pref === 'system' ? '随系统' : pref === 'dark' ? '深色' : '浅色'
+      themeBtn.title = document.documentElement.lang === 'zh' ? `主题：${zhName}（点击切换）` : `Theme: ${zhName} (click to cycle)`
+      themeBtn.setAttribute('aria-label', themeBtn.title)
+    }
+    function cycleTheme() {
+      const next = THEME_ORDER[(THEME_ORDER.indexOf(getThemePref()) + 1) % THEME_ORDER.length]
+      localStorage.setItem(THEME_KEY, next)
+      applyTheme(next)
+    }
+
+    themeBtn.addEventListener('click', cycleTheme)
+    langBtn.addEventListener('click', cycleLang)
+    // 跟随系统：监听系统主题变化
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (getThemePref() === 'system') applyTheme('system')
+    })
+
+    applyTheme(getThemePref())
+    applyLang(getLangPref())
+
+    /* ================= 滚动入场 ================= */
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const revealEls = document.querySelectorAll('.reveal')
     if (reduceMotion) {
@@ -397,7 +564,7 @@
       revealEls.forEach((el) => el.classList.add('visible'))
     }
 
-    // 页脚年份
+    /* 页脚年份 */
     document.getElementById('year').textContent = new Date().getFullYear()
   </script>
 
