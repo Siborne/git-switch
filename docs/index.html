@@ -510,7 +510,8 @@
         const t = I18N[k]
         if (t && t[lang]) el.innerHTML = t[lang]
       })
-      langBtn.textContent = LANG_LABEL[pref][lang] || LANG_LABEL[pref].zh
+      // system 时显示"随系统/Auto"（按当前解析语言），zh/en 直接显示固定文案
+      langBtn.textContent = pref === 'system' ? LANG_LABEL.system[lang] : LANG_LABEL[pref]
       langBtn.title = pref === 'system'
         ? (lang === 'zh' ? '语言：随系统（中文）' : 'Language: System (English)')
         : (lang === 'zh' ? '切换语言' : 'Switch language')
